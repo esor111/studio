@@ -1,7 +1,0 @@
-// This route is now handled by the mock server in server.js
-// You can remove this file if you wish, but it's kept for reference.
-import { NextResponse } from 'next/server';
-
-export async function GET() {
-    return NextResponse.json({ message: 'This endpoint is handled by the mock server.' }, { status: 404 });
-}
