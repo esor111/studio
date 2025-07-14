@@ -182,7 +182,7 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
     const stackLayers = Math.floor(subtopic.repsCompleted / 5);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white p-4 sm:p-8">
+        <div className="min-h-screen bg-gray-50 text-gray-800 p-4 sm:p-8">
             <Toast message={toast.message} type={toast.type} isVisible={toast.isVisible} onClose={hideToast} />
             <CustomConfetti isVisible={showConfetti} />
             <FlyingNote isVisible={flyingNote.isVisible} type={flyingNote.type} onComplete={handleAnimationComplete} />
@@ -190,23 +190,23 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
             <div className="max-w-6xl mx-auto">
                 <header className="mb-12">
                      <div className="flex justify-between items-center">
-                        <Button asChild variant="ghost" className="text-white/80 hover:text-white hover:bg-white/10">
+                        <Button asChild variant="ghost">
                             <Link href={`/topics/${topic.id}`}>
                                 <ChevronLeft className="mr-2 h-4 w-4" />
                                 Back to Topic
                             </Link>
                         </Button>
-                        <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
+                        <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
                             Sub-Topic Tracker
                         </h1>
                          <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
                             <DialogTrigger asChild>
-                                <Button variant="outline" className="bg-white/10 border-white/20 hover:bg-white/20 text-white">
+                                <Button variant="outline">
                                     <Edit className="mr-2 h-4 w-4" />
                                     Edit
                                 </Button>
                             </DialogTrigger>
-                            <DialogContent className="text-black max-w-2xl">
+                            <DialogContent className="max-w-2xl">
                                 <DialogHeader>
                                     <DialogTitle>Edit Sub-topic</DialogTitle>
                                 </DialogHeader>
@@ -219,22 +219,22 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
                         </Dialog>
                     </div>
                    {dashboardData && (
-                     <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 sm:p-6 inline-block mt-4 w-full">
+                     <div className="bg-white rounded-lg p-4 sm:p-6 shadow-md mt-4 w-full">
                         <div className="grid grid-cols-3 gap-4 sm:gap-8 text-center">
                             <div>
-                                <div className="text-xl sm:text-2xl font-bold text-green-400">₹{dashboardData.currentEarnings.toLocaleString()}</div>
-                                <div className="text-xs sm:text-sm text-gray-300">Current Money</div>
+                                <div className="text-xl sm:text-2xl font-bold text-green-600">₹{dashboardData.currentEarnings.toLocaleString()}</div>
+                                <div className="text-xs sm:text-sm text-gray-500">Current Money</div>
                             </div>
                             <div>
-                                <div className="text-xl sm:text-2xl font-bold text-blue-400">₹{dashboardData.globalGoal.toLocaleString()}</div>
-                                <div className="text-xs sm:text-sm text-gray-300">Global Goal</div>
+                                <div className="text-xl sm:text-2xl font-bold text-blue-600">₹{dashboardData.globalGoal.toLocaleString()}</div>
+                                <div className="text-xs sm:text-sm text-gray-500">Global Goal</div>
                             </div>
                             <div>
-                                <div className="text-xl sm:text-2xl font-bold text-purple-400">{Math.round(dashboardData.progress)}%</div>
-                                <div className="text-xs sm:text-sm text-gray-300">Progress</div>
+                                <div className="text-xl sm:text-2xl font-bold text-purple-600">{Math.round(dashboardData.progress)}%</div>
+                                <div className="text-xs sm:text-sm text-gray-500">Progress</div>
                             </div>
                         </div>
-                        <div className="mt-4 bg-gray-700 rounded-full h-2">
+                        <div className="mt-4 bg-gray-200 rounded-full h-2">
                             <div
                                 className="bg-gradient-to-r from-green-400 to-blue-500 h-2 rounded-full transition-all duration-500"
                                 style={{ width: `${dashboardData.progress}%` }}
@@ -244,33 +244,33 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
                    )}
                 </header>
 
-                <div className="bg-black/40 backdrop-blur-sm rounded-xl p-6 sm:p-8 mb-8">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 sm:p-8 mb-8 border">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
                         <div>
-                            <h2 className="text-2xl font-bold mb-4">{subtopic.title}</h2>
+                            <h2 className="text-2xl font-bold text-gray-900 mb-4">{subtopic.title}</h2>
                             <div className="space-y-4">
                                 <div className="flex justify-between items-center">
-                                    <span className="text-muted-foreground">Status:</span>
+                                    <span className="text-gray-600">Status:</span>
                                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                        progressPercentage === 100 ? 'bg-green-500/80' : 'bg-yellow-500/80'
+                                        progressPercentage === 100 ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                                     }`}>
                                         {progressPercentage === 100 ? 'Completed' : 'In-progress'}
                                     </span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="text-muted-foreground">Repetitions:</span>
-                                    <span className="text-2xl font-bold">{subtopic.repsCompleted}/{subtopic.repsGoal}</span>
+                                    <span className="text-gray-600">Repetitions:</span>
+                                    <span className="text-2xl font-bold text-gray-800">{subtopic.repsCompleted}/{subtopic.repsGoal}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="text-muted-foreground">Progress:</span>
-                                    <span className="text-lg font-semibold">{Math.round(progressPercentage)}%</span>
+                                    <span className="text-gray-600">Progress:</span>
+                                    <span className="text-lg font-semibold text-gray-800">{Math.round(progressPercentage)}%</span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="text-muted-foreground">Earned Amount:</span>
-                                    <span className="text-lg font-semibold text-green-400">₹{earnedAmount.toLocaleString()}</span>
+                                    <span className="text-gray-600">Earned Amount:</span>
+                                    <span className="text-lg font-semibold text-green-600">₹{earnedAmount.toLocaleString()}</span>
                                 </div>
 
-                                <div className="bg-gray-700 rounded-full h-3 mt-2">
+                                <div className="bg-gray-200 rounded-full h-3 mt-2">
                                     <div
                                         className="bg-gradient-to-r from-yellow-400 to-orange-500 h-3 rounded-full transition-all duration-500"
                                         style={{ width: `${progressPercentage}%` }}
@@ -284,7 +284,7 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
                                     whileTap={{ scale: 0.95 }}
                                     onClick={() => handleRepAction(1)}
                                     disabled={isLoading || subtopic.repsCompleted >= subtopic.repsGoal}
-                                    className="flex-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:from-gray-500 disabled:to-gray-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-200 disabled:cursor-not-allowed"
+                                    className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-bold py-3 px-6 rounded-lg transition-all duration-200 disabled:cursor-not-allowed shadow-md"
                                 >
                                     {isLoading ? '...' : '+ Rep'}
                                 </motion.button>
@@ -294,7 +294,7 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
                                     whileTap={{ scale: 0.95 }}
                                     onClick={() => handleRepAction(-1)}
                                     disabled={isLoading || subtopic.repsCompleted <= 0}
-                                    className="flex-1 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 disabled:from-gray-500 disabled:to-gray-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-200 disabled:cursor-not-allowed"
+                                    className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white font-bold py-3 px-6 rounded-lg transition-all duration-200 disabled:cursor-not-allowed shadow-md"
                                 >
                                     {isLoading ? '...' : '– Rep'}
                                 </motion.button>
@@ -302,31 +302,31 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
                         </div>
 
                         <div className="flex flex-col items-center justify-center">
-                            <h3 className="text-xl font-bold mb-4">Money Stack</h3>
-                            <div className="bg-gradient-to-b from-gray-800 to-gray-900 rounded-lg p-8 min-h-[200px] w-full flex items-end justify-center">
+                            <h3 className="text-xl font-bold text-gray-900 mb-4">Money Stack</h3>
+                            <div className="bg-gray-100 rounded-lg p-8 min-h-[200px] w-full flex items-end justify-center border-2 border-gray-200">
                                 <MoneyStack stackLayers={stackLayers} />
                             </div>
                             <div className="mt-4 text-center">
-                                <div className="text-sm text-gray-400">Stack Layers: {stackLayers}/4</div>
+                                <div className="text-sm text-gray-600">Stack Layers: {stackLayers}/4</div>
                                 <div className="text-xs text-gray-500 mt-1">Each layer = 5 reps = ₹{topic.moneyPer5Reps}</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-white">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-gray-800">
                     {subtopic.notes && (
-                        <Card className="bg-black/20 border-white/10">
+                        <Card>
                             <CardHeader>
                                 <CardTitle>Notes</CardTitle>
                             </CardHeader>
-                            <CardContent className="whitespace-pre-wrap">
+                            <CardContent className="whitespace-pre-wrap text-gray-700">
                                 {subtopic.notes}
                             </CardContent>
                         </Card>
                     )}
                     {(subtopic.urls && subtopic.urls.length > 0) && (
-                        <Card className="bg-black/20 border-white/10">
+                        <Card>
                              <CardHeader>
                                 <CardTitle>Resources</CardTitle>
                             </CardHeader>
@@ -334,7 +334,7 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
                                 <ul className="space-y-2">
                                 {subtopic.urls.map((url, index) => (
                                     <li key={index}>
-                                    <a href={url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-400 hover:underline break-all">
+                                    <a href={url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-600 hover:underline break-all">
                                         <Link2 className="h-4 w-4 shrink-0" />
                                         <span>{url}</span>
                                     </a>
@@ -349,5 +349,3 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
         </div>
     );
 }
-
-    
