@@ -1,22 +1,11 @@
+// This route is now handled by the mock server in server.js
+// You can remove this file if you wish, but it's kept for reference.
 import { NextResponse } from 'next/server';
-import { createTopic, getCategories } from '@/lib/mock-data';
-import { type Topic } from '@/lib/types';
 
 export async function POST(request: Request) {
-  try {
-    const topicData = await request.json();
-    const newTopic = createTopic(topicData);
-    return NextResponse.json(newTopic, { status: 201 });
-  } catch (error: any) {
-    return NextResponse.json({ message: error.message || 'Error creating topic' }, { status: 500 });
-  }
+    return NextResponse.json({ message: 'This endpoint is handled by the mock server.' }, { status: 404 });
 }
 
 export async function GET(request: Request) {
-    try {
-      const categories = getCategories();
-      return NextResponse.json(categories);
-    } catch (error) {
-      return NextResponse.json({ message: 'Error fetching categories' }, { status: 500 });
-    }
-  }
+    return NextResponse.json({ message: 'This endpoint is handled by the mock server.' }, { status: 404 });
+}

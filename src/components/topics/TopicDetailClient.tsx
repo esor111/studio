@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { type Topic, type Subtopic } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,7 +11,6 @@ import { useToast } from '@/hooks/use-toast';
 import TopicForm from './TopicForm';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Button } from '../ui/button';
-import { getCategories } from '@/lib/mock-data';
 import SubtopicForm from './SubtopicForm';
 
 interface TopicDetailClientProps {
@@ -25,7 +25,15 @@ export default function TopicDetailClient({ initialTopic }: TopicDetailClientPro
   const [isAddingSubtopic, setIsAddingSubtopic] = useState(false);
   const [sortKey, setSortKey] = useState<SortKey>('title');
   const [sortAsc, setSortAsc] = useState(true);
+  const [categories, setCategories] = useState<string[]>([]);
   const { toast } = useToast();
+
+  useEffect(() => {
+    // Fetch categories for the edit form
+    fetch('/api/categories')
+      .then(res => res.json())
+      .then(setCategories);
+  }, []);
 
   const handleTopicFormSuccess = (updatedTopic: Topic) => {
     setTopic(updatedTopic);
@@ -36,18 +44,12 @@ export default function TopicDetailClient({ initialTopic }: TopicDetailClientPro
     });
   }
 
-  const handleSubtopicFormSuccess = (newSubtopic: Subtopic) => {
-    setTopic(prev => {
-        // We need to fetch the full updated topic to get correct earnings/progress
-        fetch(`/api/topics/${prev.id}`)
-            .then(res => res.json())
-            .then(updatedTopic => setTopic(updatedTopic));
+  const handleSubtopicFormSuccess = async (newSubtopic: Subtopic) => {
+    // We need to fetch the full updated topic to get correct earnings/progress
+    const res = await fetch(`/api/topics/${topic.id}`);
+    const updatedTopic = await res.json();
+    setTopic(updatedTopic);
 
-        return {
-            ...prev,
-            subtopics: [...prev.subtopics, newSubtopic],
-        }
-    });
     setIsAddingSubtopic(false);
     toast({
       title: "Subtopic Added!",
@@ -96,7 +98,7 @@ export default function TopicDetailClient({ initialTopic }: TopicDetailClientPro
               <TopicForm
                 topicToEdit={topic}
                 onFormSubmit={handleTopicFormSuccess}
-                categories={getCategories()}
+                categories={categories}
               />
             </DialogContent>
           </Dialog>
