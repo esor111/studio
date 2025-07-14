@@ -11,6 +11,8 @@ async function getTopicData(topicId: string): Promise<Topic | undefined> {
   return data;
 }
 
+export const dynamic = 'force-dynamic';
+
 export default async function TopicDetailPage({ params }: { params: { topicId: string } }) {
   const topicData = await getTopicData(params.topicId);
 

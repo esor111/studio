@@ -4,9 +4,10 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { type Subtopic, type Topic } from '@/lib/types';
-import { Minus, Plus, PartyPopper } from 'lucide-react';
+import { Minus, Plus, PartyPopper, MoreVertical } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 interface SubtopicItemProps {
   subtopic: Subtopic;
@@ -63,9 +64,9 @@ export default function SubtopicItem({ subtopic, topicId, onRepLogSuccess }: Sub
 
   return (
     <div className="p-4 border rounded-lg bg-card-foreground/5 relative overflow-hidden">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex items-center gap-4">
         <div className="flex-grow">
-          <p className="font-semibold">{subtopic.title}</p>
+          <Link href={`/sub-topics/${subtopic.id}?topicId=${topicId}`} className="font-semibold hover:underline">{subtopic.title}</Link>
           <div className="flex items-center gap-2 mt-1">
             <Progress value={progress} className="h-2 w-full" aria-label={`Progress for ${subtopic.title}`} />
             <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">{repsCompleted} / {repsGoal}</span>
@@ -77,6 +78,11 @@ export default function SubtopicItem({ subtopic, topicId, onRepLogSuccess }: Sub
             </Button>
             <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleLogRep(1)} disabled={isSubmitting || repsCompleted >= repsGoal}>
                 <Plus className="h-4 w-4" />
+            </Button>
+             <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+                <Link href={`/sub-topics/${subtopic.id}?topicId=${topicId}`}>
+                    <MoreVertical className="h-4 w-4" />
+                </Link>
             </Button>
         </div>
       </div>

@@ -18,9 +18,9 @@ let topics: Topic[] = [
     moneyPer5Reps: 50,
     isMoneyPer5RepsLocked: false,
     subtopics: [
-      { id: '1-1', title: 'Master custom hooks', repsCompleted: 5, repsGoal: 18 },
-      { id: '1-2', title: 'Understand useTransition', repsCompleted: 2, repsGoal: 18 },
-      { id: '1-3', title: 'Implement state machines', repsCompleted: 0, repsGoal: 18 },
+      { id: '1-1', title: 'Master custom hooks', repsCompleted: 5, repsGoal: 18, notes: 'Read the official docs on custom hooks.', urls: ['https://react.dev/learn/reusing-logic-with-custom-hooks'] },
+      { id: '1-2', title: 'Understand useTransition', repsCompleted: 2, repsGoal: 18, notes: 'For non-urgent state updates.', urls: [] },
+      { id: '1-3', title: 'Implement state machines', repsCompleted: 0, repsGoal: 18, notes: 'Explore XState or Zustand for this.', urls: [] },
     ],
   },
   {
@@ -34,8 +34,8 @@ let topics: Topic[] = [
     moneyPer5Reps: 75,
     isMoneyPer5RepsLocked: true,
     subtopics: [
-      { id: '2-1', title: 'Set up NextAuth.js', repsCompleted: 5, repsGoal: 18 },
-      { id: '2-2', title: 'Connect to a database', repsCompleted: 1, repsGoal: 18 },
+      { id: '2-1', title: 'Set up NextAuth.js', repsCompleted: 5, repsGoal: 18, notes: 'Use the new App Router setup.', urls: [] },
+      { id: '2-2', title: 'Connect to a database', repsCompleted: 1, repsGoal: 18, notes: 'Try using Prisma ORM.', urls: [] },
     ],
   },
   {
@@ -49,8 +49,8 @@ let topics: Topic[] = [
     moneyPer5Reps: 20,
     isMoneyPer5RepsLocked: false,
     subtopics: [
-      { id: '3-1', title: 'Morning Run (km)', repsCompleted: 15, repsGoal: 18 },
-      { id: '3-2', title: 'Evening Workout (sets)', repsCompleted: 12, repsGoal: 18 },
+      { id: '3-1', title: 'Morning Run (km)', repsCompleted: 15, repsGoal: 18, notes: '', urls: [] },
+      { id: '3-2', title: 'Evening Workout (sets)', repsCompleted: 12, repsGoal: 18, notes: 'Focus on compound exercises.', urls: [] },
     ],
   },
 ];
@@ -166,7 +166,7 @@ export const getSubtopicById = (subtopicId: string): Subtopic | undefined => {
     return undefined;
 }
 
-export const addSubtopicToTopic = (topicId: string, subtopicData: Pick<Subtopic, 'title'>): Subtopic | null => {
+export const addSubtopicToTopic = (topicId: string, subtopicData: Pick<Subtopic, 'title' | 'notes' | 'urls'>): Subtopic | null => {
     const topic = topics.find(t => t.id === topicId);
     if (!topic) {
         return null;
@@ -176,6 +176,8 @@ export const addSubtopicToTopic = (topicId: string, subtopicData: Pick<Subtopic,
         title: subtopicData.title,
         repsGoal: 18, // Fixed goal of 18
         repsCompleted: 0,
+        notes: subtopicData.notes || '',
+        urls: subtopicData.urls || [],
     };
     topic.subtopics.push(newSubtopic);
     recalculateTopic(topic);
@@ -186,7 +188,8 @@ export const updateSubtopic = (subtopicId: string, data: Partial<Subtopic>): Sub
     for (const topic of topics) {
         const subtopicIndex = topic.subtopics.findIndex(st => st.id === subtopicId);
         if (subtopicIndex !== -1) {
-            topic.subtopics[subtopicIndex] = { ...topic.subtopics[subtopicIndex], ...data };
+            const originalSubtopic = topic.subtopics[subtopicIndex];
+            topic.subtopics[subtopicIndex] = { ...originalSubtopic, ...data };
             // Ensure repsGoal cannot be changed from 18
             topic.subtopics[subtopicIndex].repsGoal = 18;
             recalculateTopic(topic);

@@ -45,10 +45,18 @@ export default function TopicDetailClient({ initialTopic }: TopicDetailClientPro
   }
 
   const handleSubtopicFormSuccess = (newSubtopic: Subtopic) => {
-    setTopic(prev => ({
-        ...prev,
-        subtopics: [...prev.subtopics, newSubtopic]
-    }));
+    setTopic(prev => {
+        const newSubtopics = [...prev.subtopics, newSubtopic];
+        // We need to fetch the full updated topic to get correct earnings/progress
+        fetch(`/api/topics/${prev.id}`)
+            .then(res => res.json())
+            .then(updatedTopic => setTopic(updatedTopic));
+
+        return {
+            ...prev,
+            subtopics: newSubtopics,
+        }
+    });
     setIsAddingSubtopic(false);
     toast({
       title: "Subtopic Added!",
@@ -163,7 +171,7 @@ export default function TopicDetailClient({ initialTopic }: TopicDetailClientPro
               {topic.notes && (
                   <div>
                       <strong className="text-muted-foreground">Notes:</strong>
-                      <p className="pt-1">{topic.notes}</p>
+                      <p className="pt-1 whitespace-pre-wrap">{topic.notes}</p>
                   </div>
               )}
             </CardContent>

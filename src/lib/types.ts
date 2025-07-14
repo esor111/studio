@@ -3,6 +3,8 @@ export interface Subtopic {
   title: string;
   repsCompleted: number;
   repsGoal: number;
+  notes?: string;
+  urls?: string[];
 }
 
 export interface Topic {
