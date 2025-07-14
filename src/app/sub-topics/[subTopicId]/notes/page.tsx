@@ -1,40 +1,19 @@
 
-'use client'; // This page now fetches data on the client side
-
-import { useState, useEffect } from 'react';
-import { type Subtopic } from '@/lib/types';
 import SubtopicNotesClient from '@/components/topics/SubtopicNotesClient';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { ChevronLeft } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { type Subtopic } from '@/lib/types';
+import { ChevronLeft } from 'lucide-react';
+import Link from 'next/link';
 
 async function getData(subTopicId: string): Promise<Subtopic | null> {
-    const res = await fetch(`/api/sub-topics/${subTopicId}`);
+    const res = await fetch(`http://localhost:3001/api/sub-topics/${subTopicId}`, { cache: 'no-store' });
     if (!res.ok) return null;
     return res.json();
 }
 
-export default function SubtopicNotesPage({ params }: { params: { subTopicId: string } }) {
-    const [subtopic, setSubtopic] = useState<Subtopic | null | undefined>(undefined);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-      getData(params.subTopicId)
-        .then(setSubtopic)
-        .catch(err => setError(err.message))
-        .finally(() => setIsLoading(false));
-    }, [params.subTopicId]);
-
-
-    if (isLoading) {
-      return <NotesSkeleton />;
-    }
-    
-    if (error) {
-        return <div className="text-destructive">Error: {error}</div>;
-    }
+export default async function SubtopicNotesPage({ params }: { params: { subTopicId: string } }) {
+    const subtopic = await getData(params.subTopicId);
 
     if (!subtopic) {
         return (

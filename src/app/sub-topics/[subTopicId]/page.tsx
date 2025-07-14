@@ -1,26 +1,23 @@
 
-'use client'; // This page now fetches data on the client side
-
-import { useState, useEffect } from 'react';
-import { type Subtopic, type Topic } from '@/lib/types';
 import SubTopicDetailClient from '@/components/topics/SubTopicDetailClient';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
+import { type Subtopic, type Topic } from '@/lib/types';
+import Link from 'next/link';
 
 async function getData(subTopicId: string): Promise<{subtopic: Subtopic, topic: Topic} | null> {
-    const subtopicRes = await fetch(`/api/sub-topics/${subTopicId}`);
+    const subtopicRes = await fetch(`http://localhost:3001/api/sub-topics/${subTopicId}`, { cache: 'no-store' });
     if (!subtopicRes.ok) return null;
     const subtopic: Subtopic = await subtopicRes.json();
 
     let topic: Topic | null = null;
     // We need to find the parent topic. This is a bit inefficient without a dedicated endpoint.
     // In a real app, you might have /api/sub-topics/[id]/details which returns both.
-    const dashboardRes = await fetch('/api/dashboard');
+    const dashboardRes = await fetch('http://localhost:3001/api/dashboard', { cache: 'no-store' });
     if (dashboardRes.ok) {
       const dashboard: { topics: { id: string }[] } = await dashboardRes.json();
       for (const topicSummary of dashboard.topics) {
-          const topicRes = await fetch(`/api/topics/${topicSummary.id}`);
+          const topicRes = await fetch(`http://localhost:3001/api/topics/${topicSummary.id}`, { cache: 'no-store' });
           if (topicRes.ok) {
               const fullTopic: Topic = await topicRes.json();
               if (fullTopic.subtopics.some(st => st.id === subTopicId)) {
@@ -36,28 +33,10 @@ async function getData(subTopicId: string): Promise<{subtopic: Subtopic, topic: 
     return { subtopic, topic };
 }
 
-export default function SubTopicDetailPage({ params: { subTopicId } }: { params: { subTopicId: string } }) {
-  const [data, setData] = useState<{subtopic: Subtopic, topic: Topic} | null | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  
-  useEffect(() => {
-    getData(subTopicId)
-      .then(setData)
-      .catch(err => setError(err.message))
-      .finally(() => setIsLoading(false));
-  }, [subTopicId]);
+export default async function SubTopicDetailPage({ params: { subTopicId } }: { params: { subTopicId: string } }) {
+  const data = await getData(subTopicId);
 
-
-  if (isLoading) {
-    return <SubTopicDetailSkeleton />;
-  }
-  
-  if (error) {
-    return <div className="text-destructive">Error: {error}</div>;
-  }
-  
-  if (data === null || data === undefined) {
+  if (!data) {
     return (
        <div className="text-center">
             <h1 className="text-2xl font-bold">Sub-Topic not found</h1>
@@ -77,7 +56,7 @@ export default function SubTopicDetailPage({ params: { subTopicId } }: { params:
   );
 }
 
-function SubTopicDetailSkeleton() {
+export function SubTopicDetailSkeleton() {
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-8">
       <div className="max-w-6xl mx-auto">
