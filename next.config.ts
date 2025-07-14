@@ -27,6 +27,11 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  env: {
+    NEXT_PUBLIC_API_URL: process.env.NODE_ENV === 'development'
+      ? 'http://localhost:9002' // URL of the Next.js app itself
+      : 'https://your-production-url.com', // Replace with your production URL
+  },
 };
 
 export default nextConfig;

@@ -6,18 +6,18 @@ import { type Subtopic, type Topic } from '@/lib/types';
 import Link from 'next/link';
 
 async function getData(subTopicId: string): Promise<{subtopic: Subtopic, topic: Topic} | null> {
-    const subtopicRes = await fetch(`http://localhost:3001/api/sub-topics/${subTopicId}`, { cache: 'no-store' });
+    const subtopicRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sub-topics/${subTopicId}`, { cache: 'no-store' });
     if (!subtopicRes.ok) return null;
     const subtopic: Subtopic = await subtopicRes.json();
 
     let topic: Topic | null = null;
     // We need to find the parent topic. This is a bit inefficient without a dedicated endpoint.
     // In a real app, you might have /api/sub-topics/[id]/details which returns both.
-    const dashboardRes = await fetch('http://localhost:3001/api/dashboard', { cache: 'no-store' });
+    const dashboardRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/dashboard`, { cache: 'no-store' });
     if (dashboardRes.ok) {
       const dashboard: { topics: { id: string }[] } = await dashboardRes.json();
       for (const topicSummary of dashboard.topics) {
-          const topicRes = await fetch(`http://localhost:3001/api/topics/${topicSummary.id}`, { cache: 'no-store' });
+          const topicRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/topics/${topicSummary.id}`, { cache: 'no-store' });
           if (topicRes.ok) {
               const fullTopic: Topic = await topicRes.json();
               if (fullTopic.subtopics.some(st => st.id === subTopicId)) {

@@ -7,7 +7,7 @@ import { ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 
 async function getData(subTopicId: string): Promise<Subtopic | null> {
-    const res = await fetch(`http://localhost:3001/api/sub-topics/${subTopicId}`, { cache: 'no-store' });
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sub-topics/${subTopicId}`, { cache: 'no-store' });
     if (!res.ok) return null;
     return res.json();
 }
