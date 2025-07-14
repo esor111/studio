@@ -1,7 +1,4 @@
 
-'use client'; // This page now fetches data on the client side
-
-import { useState, useEffect } from 'react';
 import { type Topic } from '@/lib/types';
 import TopicDetailClient from '@/components/topics/TopicDetailClient';
 import Link from 'next/link';
@@ -9,42 +6,18 @@ import { ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 
-async function getTopicData(topicId: string): Promise<Topic | undefined> {
-  const res = await fetch(`/api/topics/${topicId}`);
+async function getTopicData(topicId: string): Promise<Topic | null> {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/topics/${topicId}`, { cache: 'no-store' });
   if (!res.ok) {
-    if (res.status === 404) return undefined;
-    throw new Error('Failed to fetch topic data');
+    return null;
   }
   return res.json();
 }
 
-export default function TopicDetailPage({ params }: { params: { topicId: string } }) {
-  const [topicData, setTopicData] = useState<Topic | null | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export default async function TopicDetailPage({ params }: { params: { topicId: string } }) {
+  const topicData = await getTopicData(params.topicId);
 
-  useEffect(() => {
-    getTopicData(params.topicId)
-      .then(data => {
-        setTopicData(data);
-      })
-      .catch(err => {
-        setError(err.message);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, [params.topicId]);
-
-  if (isLoading) {
-    return <TopicDetailSkeleton />;
-  }
-
-  if (error) {
-    return <div className="text-destructive">Error: {error}</div>;
-  }
-  
-  if (topicData === null || topicData === undefined) {
+  if (!topicData) {
     return (
         <div className="text-center">
             <h1 className="text-2xl font-bold">Topic not found</h1>
