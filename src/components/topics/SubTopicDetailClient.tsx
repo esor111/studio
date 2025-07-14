@@ -183,7 +183,7 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
     const moneyPerRep = subtopic.repsGoal > 0 ? subtopic.goalAmount / subtopic.repsGoal : 0;
     const earnedAmount = subtopic.repsCompleted * moneyPerRep;
 
-    const stackLayers = subtopic.goalAmount > 0 ? Math.floor((earnedAmount / subtopic.goalAmount) * 4) : 0;
+    const stackLayers = subtopic.goalAmount > 0 ? Math.floor((earnedAmount / subtopic.goalAmount) * 10) : 0;
 
 
     return (
@@ -308,12 +308,12 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
 
                         <div className="flex flex-col items-center justify-center">
                             <h3 className="text-xl font-bold text-gray-900 mb-4">Money Stack</h3>
-                            <div className="bg-gray-100 rounded-lg p-8 min-h-[200px] w-full flex items-end justify-center border-2 border-gray-200">
+                            <div className="bg-gray-100 rounded-lg p-8 min-h-[200px] w-full flex items-center justify-center border-2 border-gray-200">
                                 <MoneyStack stackLayers={stackLayers} />
                             </div>
                             <div className="mt-4 text-center">
-                                <div className="text-sm text-gray-600">Stack Layers: {stackLayers}/4</div>
-                                <div className="text-xs text-gray-500 mt-1">Each layer represents 25% of your goal</div>
+                                <div className="text-sm text-gray-600">Stack Layers: {stackLayers}/10</div>
+                                <div className="text-xs text-gray-500 mt-1">Each layer represents 10% of your goal</div>
                             </div>
                         </div>
                     </div>
