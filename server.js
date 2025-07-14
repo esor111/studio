@@ -246,3 +246,5 @@ app.get('/api/categories', (req, res) => {
 app.listen(PORT, () => {
   console.log(`✅ Mock API server running at http://localhost:${PORT}`);
 });
+
+    
