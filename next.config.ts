@@ -23,14 +23,14 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://localhost:3001/api/:path*', // Proxy to mock server
+        destination: 'https://dev.kaha.com.np/exp-backend/api/:path*', // Proxy to DEPLOYED server
       },
     ];
   },
   env: {
     NEXT_PUBLIC_API_URL: process.env.NODE_ENV === 'development'
-      ? 'http://localhost:9002' // URL of the Next.js app itself
-      : 'https://your-production-url.com', // Replace with your production URL
+      ? 'http://localhost:9002' // URL of the Next.js app itself to use the proxy
+      : 'https://dev.kaha.com.np/exp-backend', // Production URL
   },
 };
 

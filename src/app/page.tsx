@@ -18,7 +18,7 @@ export default async function Home() {
   if (!dashboardData) {
     return (
        <div className="space-y-8">
-         <div className="text-destructive">Error: Failed to load dashboard data. Please ensure the mock server is running.</div>
+         <div className="text-destructive">Error: Failed to load dashboard data. Please ensure the API server is running and accessible.</div>
          <DashboardSkeleton />
        </div>
     )
