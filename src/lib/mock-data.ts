@@ -142,3 +142,41 @@ export const updateTopic = (id: string, data: Partial<Topic>): Topic | null => {
     recalculateTopic(topics[topicIndex]);
     return getTopicById(id) as Topic;
 };
+
+export const getSubtopicById = (subtopicId: string): Subtopic | undefined => {
+    for (const topic of topics) {
+        const subtopic = topic.subtopics.find(st => st.id === subtopicId);
+        if (subtopic) {
+            return JSON.parse(JSON.stringify(subtopic));
+        }
+    }
+    return undefined;
+}
+
+export const addSubtopicToTopic = (topicId: string, subtopicData: Pick<Subtopic, 'title' | 'repsGoal'>): Subtopic | null => {
+    const topic = topics.find(t => t.id === topicId);
+    if (!topic) {
+        return null;
+    }
+    const newSubtopic: Subtopic = {
+        id: String(nextSubtopicId++),
+        title: subtopicData.title,
+        repsGoal: subtopicData.repsGoal,
+        repsCompleted: 0,
+    };
+    topic.subtopics.push(newSubtopic);
+    recalculateTopic(topic);
+    return newSubtopic;
+}
+
+export const updateSubtopic = (subtopicId: string, data: Partial<Subtopic>): Subtopic | null => {
+    for (const topic of topics) {
+        const subtopicIndex = topic.subtopics.findIndex(st => st.id === subtopicId);
+        if (subtopicIndex !== -1) {
+            topic.subtopics[subtopicIndex] = { ...topic.subtopics[subtopicIndex], ...data };
+            recalculateTopic(topic);
+            return topic.subtopics[subtopicIndex];
+        }
+    }
+    return null;
+}
