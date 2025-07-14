@@ -1,4 +1,5 @@
-import { getSubtopicById, getTopicBySubtopicId } from '@/lib/mock-data';
+
+import { getSubtopicById, getTopicBySubtopicId, getTopicById } from '@/lib/mock-data';
 import { type Subtopic, type Topic } from '@/lib/types';
 import SubTopicDetailClient from '@/components/topics/SubTopicDetailClient';
 import { notFound } from 'next/navigation';
