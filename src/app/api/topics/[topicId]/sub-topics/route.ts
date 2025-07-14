@@ -10,6 +10,7 @@ export async function POST(
     if (!subtopicData.title) {
         return NextResponse.json({ message: 'Title is required for a sub-topic.' }, { status: 400 });
     }
+    // repsGoal is now fixed to 18 in addSubtopicToTopic
     const newSubtopic = addSubtopicToTopic(params.topicId, subtopicData);
 
     if (!newSubtopic) {

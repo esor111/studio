@@ -8,11 +8,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { type Subtopic } from '@/lib/types';
-import { useRouter } from 'next/navigation';
 
 const formSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters.'),
-  repsGoal: z.coerce.number().min(1, 'Goal must be at least 1.').max(100, 'Goal cannot exceed 100.'),
 });
 
 type SubtopicFormValues = z.infer<typeof formSchema>;
@@ -23,14 +21,12 @@ interface SubtopicFormProps {
 }
 
 export default function SubtopicForm({ topicId, onFormSubmit }: SubtopicFormProps) {
-  const router = useRouter();
   const { toast } = useToast();
 
   const form = useForm<SubtopicFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: '',
-      repsGoal: 10,
     },
     mode: 'onChange',
   });
@@ -49,6 +45,7 @@ export default function SubtopicForm({ topicId, onFormSubmit }: SubtopicFormProp
 
       const result = await response.json();
       onFormSubmit(result.subTopic);
+      form.reset();
       
     } catch (error) {
       toast({
@@ -75,19 +72,9 @@ export default function SubtopicForm({ topicId, onFormSubmit }: SubtopicFormProp
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="repsGoal"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Repetitions Goal</FormLabel>
-              <FormControl>
-                <Input type="number" placeholder="e.g., 10" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <p className="text-sm text-muted-foreground">
+            All subtopics have a fixed goal of 18 repetitions.
+        </p>
         <Button type="submit" disabled={form.formState.isSubmitting} className="w-full">
           {form.formState.isSubmitting ? 'Adding...' : 'Add Subtopic'}
         </Button>
