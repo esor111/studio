@@ -9,7 +9,11 @@ import FlyingNote from './FlyingNote';
 import MoneyStack from './MoneyStack';
 import { Button } from '../ui/button';
 import Link from 'next/link';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Edit, Link2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
+import SubtopicForm from './SubtopicForm';
+import { useToast } from '@/hooks/use-toast';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 
 // Custom Toast Component
 const Toast = ({ message, type, isVisible, onClose }: { message: string, type: string, isVisible: boolean, onClose: () => void }) => {
@@ -53,7 +57,9 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
     const [flyingNote, setFlyingNote] = useState({ isVisible: false, type: 'fly-in' });
     const [showConfetti, setShowConfetti] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [isEditOpen, setIsEditOpen] = useState(false);
     const [toast, setToast] = useState({ isVisible: false, message: '', type: 'success' });
+    const { toast: shadToast } = useToast();
 
     useEffect(() => {
         const fetchDashboardData = async () => {
@@ -162,6 +168,15 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
         setFlyingNote({ ...flyingNote, isVisible: false });
     };
 
+    const handleSubtopicFormSuccess = (updatedSubtopic: Subtopic) => {
+        setSubtopic(updatedSubtopic);
+        setIsEditOpen(false);
+        shadToast({
+          title: "Sub-topic Updated!",
+          description: `"${updatedSubtopic.title}" has been saved.`,
+        });
+      }
+
     const progressPercentage = subtopic.repsGoal > 0 ? (subtopic.repsCompleted / subtopic.repsGoal) * 100 : 0;
     const earnedAmount = Math.floor(subtopic.repsCompleted / 5) * topic.moneyPer5Reps;
     const stackLayers = Math.floor(subtopic.repsCompleted / 5);
@@ -173,20 +188,38 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
             <FlyingNote isVisible={flyingNote.isVisible} type={flyingNote.type} onComplete={handleAnimationComplete} />
 
             <div className="max-w-6xl mx-auto">
-                <header className="text-center mb-12">
-                     <div className="relative inline-block">
-                        <Button asChild variant="ghost" className="absolute -left-32 top-1/2 -translate-y-1/2 text-white/80 hover:text-white hover:bg-white/10">
+                <header className="mb-12">
+                     <div className="flex justify-between items-center">
+                        <Button asChild variant="ghost" className="text-white/80 hover:text-white hover:bg-white/10">
                             <Link href={`/topics/${topic.id}`}>
                                 <ChevronLeft className="mr-2 h-4 w-4" />
-                                Back
+                                Back to Topic
                             </Link>
                         </Button>
                         <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
                             Sub-Topic Tracker
                         </h1>
+                         <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+                            <DialogTrigger asChild>
+                                <Button variant="outline" className="bg-white/10 border-white/20 hover:bg-white/20 text-white">
+                                    <Edit className="mr-2 h-4 w-4" />
+                                    Edit
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="text-black max-w-2xl">
+                                <DialogHeader>
+                                    <DialogTitle>Edit Sub-topic</DialogTitle>
+                                </DialogHeader>
+                                <SubtopicForm 
+                                    topicId={topic.id} 
+                                    subtopicToEdit={subtopic} 
+                                    onFormSubmit={handleSubtopicFormSuccess} 
+                                />
+                            </DialogContent>
+                        </Dialog>
                     </div>
                    {dashboardData && (
-                     <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 sm:p-6 inline-block mt-4">
+                     <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 sm:p-6 inline-block mt-4 w-full">
                         <div className="grid grid-cols-3 gap-4 sm:gap-8 text-center">
                             <div>
                                 <div className="text-xl sm:text-2xl font-bold text-green-400">₹{dashboardData.currentEarnings.toLocaleString()}</div>
@@ -280,7 +313,41 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
                         </div>
                     </div>
                 </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-white">
+                    {subtopic.notes && (
+                        <Card className="bg-black/20 border-white/10">
+                            <CardHeader>
+                                <CardTitle>Notes</CardTitle>
+                            </CardHeader>
+                            <CardContent className="whitespace-pre-wrap">
+                                {subtopic.notes}
+                            </CardContent>
+                        </Card>
+                    )}
+                    {(subtopic.urls && subtopic.urls.length > 0) && (
+                        <Card className="bg-black/20 border-white/10">
+                             <CardHeader>
+                                <CardTitle>Resources</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <ul className="space-y-2">
+                                {subtopic.urls.map((url, index) => (
+                                    <li key={index}>
+                                    <a href={url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-400 hover:underline break-all">
+                                        <Link2 className="h-4 w-4 shrink-0" />
+                                        <span>{url}</span>
+                                    </a>
+                                    </li>
+                                ))}
+                                </ul>
+                            </CardContent>
+                        </Card>
+                    )}
+                </div>
             </div>
         </div>
     );
 }
+
+    

@@ -28,8 +28,10 @@ export default async function SubTopicDetailPage({ params }: { params: { subTopi
   const { subtopic, topic } = data;
 
   return (
-    <div className="bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 -m-4 md:-m-8">
+    <div className="-m-4 md:-m-8">
       <SubTopicDetailClient initialSubtopic={subtopic} topic={topic} />
     </div>
   );
 }
+
+    
