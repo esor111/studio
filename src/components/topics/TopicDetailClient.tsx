@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { type Topic, type Subtopic } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Link2, BookOpenText, Edit, Plus, ArrowUpDown } from 'lucide-react';
+import { BookOpenText, Edit, Plus, ArrowUpDown } from 'lucide-react';
 import SubtopicItem from './SubtopicItem';
 import { useToast } from '@/hooks/use-toast';
 import TopicForm from './TopicForm';
@@ -38,7 +38,6 @@ export default function TopicDetailClient({ initialTopic }: TopicDetailClientPro
 
   const handleSubtopicFormSuccess = (newSubtopic: Subtopic) => {
     setTopic(prev => {
-        const newSubtopics = [...prev.subtopics, newSubtopic];
         // We need to fetch the full updated topic to get correct earnings/progress
         fetch(`/api/topics/${prev.id}`)
             .then(res => res.json())
@@ -46,7 +45,7 @@ export default function TopicDetailClient({ initialTopic }: TopicDetailClientPro
 
         return {
             ...prev,
-            subtopics: newSubtopics,
+            subtopics: [...prev.subtopics, newSubtopic],
         }
     });
     setIsAddingSubtopic(false);
@@ -78,118 +77,76 @@ export default function TopicDetailClient({ initialTopic }: TopicDetailClientPro
   });
 
   return (
-    <>
-      <div className="grid gap-8 md:grid-cols-3">
-        <div className="md:col-span-2 space-y-8">
-          <div>
-            <Badge variant="secondary" className="mb-2">{topic.category}</Badge>
-            <div className="flex justify-between items-start">
-              <h1 className="text-4xl font-bold font-headline">{topic.title}</h1>
-              <Dialog open={isEditing} onOpenChange={setIsEditing}>
-                <DialogTrigger asChild>
-                  <Button variant="outline">
-                    <Edit className="mr-2 h-4 w-4" />
-                    Edit Topic
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[625px]">
-                  <DialogHeader>
-                    <DialogTitle>Edit Topic</DialogTitle>
-                  </DialogHeader>
-                  <TopicForm
-                    topicToEdit={topic}
-                    onFormSubmit={handleTopicFormSuccess}
-                    categories={getCategories()}
-                  />
-                </DialogContent>
-              </Dialog>
-            </div>
-          </div>
-          
-          <Card>
-            <CardHeader>
-               <div className="flex justify-between items-center">
-                <CardTitle className="flex items-center gap-2 font-headline">
-                    <BookOpenText className="h-5 w-5" />
-                    <span>Subtopics</span>
-                </CardTitle>
-                 <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="sm" onClick={() => handleSort('title')}>
-                        Name
-                        {sortKey === 'title' && <ArrowUpDown className="h-4 w-4" />}
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={() => handleSort('status')}>
-                        Status
-                        {sortKey === 'status' && <ArrowUpDown className="h-4 w-4" />}
-                    </Button>
-                     <Dialog open={isAddingSubtopic} onOpenChange={setIsAddingSubtopic}>
-                        <DialogTrigger asChild>
-                            <Button size="sm">
-                                <Plus className="mr-2 h-4 w-4" />
-                                Add Subtopic
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[625px]">
-                            <DialogHeader>
-                                <DialogTitle>Add New Subtopic</DialogTitle>
-                            </DialogHeader>
-                            <SubtopicForm topicId={topic.id} onFormSubmit={handleSubtopicFormSuccess} />
-                        </DialogContent>
-                    </Dialog>
-                </div>
-              </div>
-              <CardDescription>
-                Complete reps for subtopics to make progress and earn money towards your goal.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {sortedSubtopics.map(subtopic => (
-                  <SubtopicItem key={subtopic.id} subtopic={subtopic} />
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="font-headline">Details</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 text-sm">
-              <p><strong className="text-muted-foreground">Earnings from topic:</strong> <span className="font-semibold text-primary">${topic.earnings.toLocaleString()}</span></p>
-              <p><strong className="text-muted-foreground">Rate:</strong> ${topic.moneyPer5Reps} per 5 reps</p>
-              {topic.notes && (
-                  <div>
-                      <strong className="text-muted-foreground">Notes:</strong>
-                      <p className="pt-1 whitespace-pre-wrap">{topic.notes}</p>
-                  </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {topic.urls.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="font-headline">Resources</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {topic.urls.map((url, index) => (
-                    <li key={index}>
-                      <a href={url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-primary hover:underline break-all">
-                        <Link2 className="h-4 w-4 shrink-0" />
-                        <span>{url}</span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          )}
+    <div className="space-y-8">
+      <div>
+        <Badge variant="secondary" className="mb-2">{topic.category}</Badge>
+        <div className="flex justify-between items-start">
+          <h1 className="text-4xl font-bold font-headline">{topic.title}</h1>
+          <Dialog open={isEditing} onOpenChange={setIsEditing}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <Edit className="mr-2 h-4 w-4" />
+                Edit Topic
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[625px]">
+              <DialogHeader>
+                <DialogTitle>Edit Topic</DialogTitle>
+              </DialogHeader>
+              <TopicForm
+                topicToEdit={topic}
+                onFormSubmit={handleTopicFormSuccess}
+                categories={getCategories()}
+              />
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
-    </>
+      
+      <Card>
+        <CardHeader>
+            <div className="flex justify-between items-center">
+            <CardTitle className="flex items-center gap-2 font-headline">
+                <BookOpenText className="h-5 w-5" />
+                <span>Subtopics</span>
+            </CardTitle>
+                <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm" onClick={() => handleSort('title')}>
+                    Name
+                    {sortKey === 'title' && <ArrowUpDown className="h-4 w-4" />}
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => handleSort('status')}>
+                    Status
+                    {sortKey === 'status' && <ArrowUpDown className="h-4 w-4" />}
+                </Button>
+                    <Dialog open={isAddingSubtopic} onOpenChange={setIsAddingSubtopic}>
+                    <DialogTrigger asChild>
+                        <Button size="sm">
+                            <Plus className="mr-2 h-4 w-4" />
+                            Add Subtopic
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[625px]">
+                        <DialogHeader>
+                            <DialogTitle>Add New Subtopic</DialogTitle>
+                        </DialogHeader>
+                        <SubtopicForm topicId={topic.id} onFormSubmit={handleSubtopicFormSuccess} />
+                    </DialogContent>
+                </Dialog>
+            </div>
+            </div>
+            <CardDescription>
+            Complete reps for subtopics to make progress and earn money towards your goal.
+            </CardDescription>
+        </CardHeader>
+        <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {sortedSubtopics.map(subtopic => (
+                <SubtopicItem key={subtopic.id} subtopic={subtopic} />
+            ))}
+            </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
