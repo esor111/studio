@@ -1,4 +1,5 @@
 
+
 'use client'
 
 import { useState, useEffect } from 'react';
@@ -9,7 +10,7 @@ import FlyingNote from './FlyingNote';
 import MoneyStack from './MoneyStack';
 import { Button } from '../ui/button';
 import Link from 'next/link';
-import { ChevronLeft, Edit, Link2 } from 'lucide-react';
+import { ChevronLeft, Edit, Link2, BookOpen } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import SubtopicForm from './SubtopicForm';
 import { useToast } from '@/hooks/use-toast';
@@ -203,7 +204,7 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
                             <DialogTrigger asChild>
                                 <Button variant="outline">
                                     <Edit className="mr-2 h-4 w-4" />
-                                    Edit
+                                    Edit Details
                                 </Button>
                             </DialogTrigger>
                             <DialogContent className="max-w-2xl">
@@ -315,16 +316,21 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-gray-800">
-                    {subtopic.notes && (
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Notes</CardTitle>
-                            </CardHeader>
-                            <CardContent className="whitespace-pre-wrap text-gray-700">
-                                {subtopic.notes}
-                            </CardContent>
-                        </Card>
-                    )}
+                    <Card>
+                        <CardHeader className="flex flex-row justify-between items-center">
+                            <CardTitle>Notes</CardTitle>
+                            <Button asChild variant="outline" size="sm">
+                                <Link href={`/sub-topics/${subtopic.id}/notes`}>
+                                    <BookOpen className="mr-2 h-4 w-4" />
+                                    View & Edit Notes
+                                </Link>
+                            </Button>
+                        </CardHeader>
+                        <CardContent className="whitespace-pre-wrap text-gray-700 line-clamp-4">
+                            {subtopic.notes || <span className="text-gray-500">No notes yet. Click to add some.</span>}
+                        </CardContent>
+                    </Card>
+
                     {(subtopic.urls && subtopic.urls.length > 0) && (
                         <Card>
                              <CardHeader>
