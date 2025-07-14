@@ -36,17 +36,17 @@ async function getData(subTopicId: string): Promise<{subtopic: Subtopic, topic: 
     return { subtopic, topic };
 }
 
-export default function SubTopicDetailPage({ params }: { params: { subTopicId: string } }) {
+export default function SubTopicDetailPage({ params: { subTopicId } }: { params: { subTopicId: string } }) {
   const [data, setData] = useState<{subtopic: Subtopic, topic: Topic} | null | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
   useEffect(() => {
-    getData(params.subTopicId)
+    getData(subTopicId)
       .then(setData)
       .catch(err => setError(err.message))
       .finally(() => setIsLoading(false));
-  }, [params.subTopicId]);
+  }, [subTopicId]);
 
 
   if (isLoading) {
