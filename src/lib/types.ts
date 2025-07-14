@@ -14,6 +14,7 @@ export interface Topic {
   notes: string;
   urls: string[];
   moneyPer5Reps: number;
+  isMoneyPer5RepsLocked: boolean;
   subtopics: Subtopic[];
 }
 
