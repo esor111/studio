@@ -61,12 +61,17 @@ let topics = [
 
 // --- Data Helper Functions ---
 const getEarnedAmountForSubtopic = (subtopic) => {
-    if (subtopic.repsGoal <= 0 || subtopic.goalAmount <= 0) return 0;
+    if (!subtopic || subtopic.repsGoal <= 0 || subtopic.goalAmount <= 0) return 0;
     const moneyPerRep = subtopic.goalAmount / subtopic.repsGoal;
     return subtopic.repsCompleted * moneyPerRep;
 };
 
 const recalculateTopic = (topic) => {
+  if (!topic || !topic.subtopics) {
+    topic.completionPercentage = 0;
+    topic.earnings = 0;
+    return;
+  }
   const totalRepsCompleted = topic.subtopics.reduce((sum, st) => sum + st.repsCompleted, 0);
   const totalRepsGoal = topic.subtopics.reduce((sum, st) => sum + st.repsGoal, 0);
   
@@ -76,7 +81,7 @@ const recalculateTopic = (topic) => {
 
 const calculateTotals = () => {
   topics.forEach(recalculateTopic);
-  const currentEarnings = topics.reduce((sum, topic) => sum + topic.earnings, 0);
+  const currentEarnings = topics.reduce((sum, topic) => sum + (topic.earnings || 0), 0);
   const progress = globalGoal > 0 ? (currentEarnings / globalGoal) * 100 : 0;
   return { currentEarnings, progress };
 };
@@ -103,8 +108,8 @@ app.get('/api/dashboard', (req, res) => {
       id,
       title,
       category,
-      earnings: Math.round(earnings),
-      completionPercentage: Math.round(completionPercentage),
+      earnings: Math.round(earnings || 0),
+      completionPercentage: Math.round(completionPercentage || 0),
     })),
   };
   res.json(dashboardData);
@@ -121,7 +126,6 @@ app.put('/api/dashboard/global-goal', (req, res) => {
 
 // 2. Topics API
 app.get('/api/topics', (req, res) => {
-  // This now correctly returns categories, as the new categories route will be used
   const categories = [...new Set(topics.map(t => t.category))];
   res.json(categories);
 });
@@ -246,5 +250,3 @@ app.get('/api/categories', (req, res) => {
 app.listen(PORT, () => {
   console.log(`✅ Mock API server running at http://localhost:${PORT}`);
 });
-
-    
