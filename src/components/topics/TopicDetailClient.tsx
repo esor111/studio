@@ -27,14 +27,6 @@ export default function TopicDetailClient({ initialTopic }: TopicDetailClientPro
   const [sortAsc, setSortAsc] = useState(true);
   const { toast } = useToast();
 
-  const handleRepLogSuccess = (updatedTopic: Topic) => {
-    setTopic(updatedTopic);
-    toast({
-      title: "Reps Logged!",
-      description: "Your progress and earnings have been updated.",
-    });
-  }
-
   const handleTopicFormSuccess = (updatedTopic: Topic) => {
     setTopic(updatedTopic);
     setIsEditing(false);
@@ -153,7 +145,7 @@ export default function TopicDetailClient({ initialTopic }: TopicDetailClientPro
             <CardContent>
               <div className="space-y-4">
                 {sortedSubtopics.map(subtopic => (
-                  <SubtopicItem key={subtopic.id} subtopic={subtopic} topicId={topic.id} onRepLogSuccess={handleRepLogSuccess} />
+                  <SubtopicItem key={subtopic.id} subtopic={subtopic} />
                 ))}
               </div>
             </CardContent>
