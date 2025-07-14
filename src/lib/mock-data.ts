@@ -18,9 +18,9 @@ let topics: Topic[] = [
     moneyPer5Reps: 50,
     isMoneyPer5RepsLocked: false,
     subtopics: [
-      { id: '1-1', title: 'Master custom hooks', repsCompleted: 5, repsGoal: 18, notes: 'Read the official docs on custom hooks.', urls: ['https://react.dev/learn/reusing-logic-with-custom-hooks'] },
-      { id: '1-2', title: 'Understand useTransition', repsCompleted: 2, repsGoal: 18, notes: 'For non-urgent state updates.', urls: [] },
-      { id: '1-3', title: 'Implement state machines', repsCompleted: 0, repsGoal: 18, notes: 'Explore XState or Zustand for this.', urls: [] },
+      { id: '1-1', title: 'Master custom hooks', repsCompleted: 5, repsGoal: 18, notes: 'Read the official docs on custom hooks.', urls: ['https://react.dev/learn/reusing-logic-with-custom-hooks'], goalAmount: 180 },
+      { id: '1-2', title: 'Understand useTransition', repsCompleted: 2, repsGoal: 18, notes: 'For non-urgent state updates.', urls: [], goalAmount: 90 },
+      { id: '1-3', title: 'Implement state machines', repsCompleted: 0, repsGoal: 18, notes: 'Explore XState or Zustand for this.', urls: [], goalAmount: 180 },
     ],
   },
   {
@@ -34,8 +34,8 @@ let topics: Topic[] = [
     moneyPer5Reps: 75,
     isMoneyPer5RepsLocked: true,
     subtopics: [
-      { id: '2-1', title: 'Set up NextAuth.js', repsCompleted: 5, repsGoal: 18, notes: 'Use the new App Router setup.', urls: [] },
-      { id: '2-2', title: 'Connect to a database', repsCompleted: 1, repsGoal: 18, notes: 'Try using Prisma ORM.', urls: [] },
+      { id: '2-1', title: 'Set up NextAuth.js', repsCompleted: 5, repsGoal: 18, notes: 'Use the new App Router setup.', urls: [], goalAmount: 270 },
+      { id: '2-2', title: 'Connect to a database', repsCompleted: 1, repsGoal: 18, notes: 'Try using Prisma ORM.', urls: [], goalAmount: 180 },
     ],
   },
   {
@@ -49,11 +49,17 @@ let topics: Topic[] = [
     moneyPer5Reps: 20,
     isMoneyPer5RepsLocked: false,
     subtopics: [
-      { id: '3-1', title: 'Morning Run (km)', repsCompleted: 15, repsGoal: 18, notes: '', urls: [] },
-      { id: '3-2', title: 'Evening Workout (sets)', repsCompleted: 12, repsGoal: 18, notes: 'Focus on compound exercises.', urls: [] },
+      { id: '3-1', title: 'Morning Run (km)', repsCompleted: 15, repsGoal: 18, notes: '', urls: [], goalAmount: 100 },
+      { id: '3-2', title: 'Evening Workout (sets)', repsCompleted: 12, repsGoal: 18, notes: 'Focus on compound exercises.', urls: [], goalAmount: 100 },
     ],
   },
 ];
+
+const getEarnedAmountForSubtopic = (subtopic: Subtopic) => {
+    if (subtopic.repsGoal <= 0 || subtopic.goalAmount <= 0) return 0;
+    const moneyPerRep = subtopic.goalAmount / subtopic.repsGoal;
+    return subtopic.repsCompleted * moneyPerRep;
+}
 
 const recalculateTopic = (topic: Topic) => {
   const totalRepsCompleted = topic.subtopics.reduce((sum, st) => sum + st.repsCompleted, 0);
@@ -61,10 +67,8 @@ const recalculateTopic = (topic: Topic) => {
   
   topic.completionPercentage = totalRepsGoal > 0 ? Math.round((totalRepsCompleted / totalRepsGoal) * 100) : 0;
   
-  topic.earnings = topic.subtopics.reduce((sum, st) => {
-      const setsOf5 = Math.floor(st.repsCompleted / 5);
-      return sum + (setsOf5 * topic.moneyPer5Reps);
-  }, 0);
+  // Topic earnings are now the sum of subtopic earnings
+  topic.earnings = topic.subtopics.reduce((sum, st) => sum + getEarnedAmountForSubtopic(st), 0);
 }
 
 const calculateTotals = () => {
@@ -166,7 +170,7 @@ export const getSubtopicById = (subtopicId: string): Subtopic | undefined => {
     return undefined;
 }
 
-export const addSubtopicToTopic = (topicId: string, subtopicData: Pick<Subtopic, 'title' | 'notes' | 'urls'>): Subtopic | null => {
+export const addSubtopicToTopic = (topicId: string, subtopicData: Pick<Subtopic, 'title' | 'notes' | 'urls' | 'goalAmount'>): Subtopic | null => {
     const topic = topics.find(t => t.id === topicId);
     if (!topic) {
         return null;
@@ -178,6 +182,7 @@ export const addSubtopicToTopic = (topicId: string, subtopicData: Pick<Subtopic,
         repsCompleted: 0,
         notes: subtopicData.notes || '',
         urls: subtopicData.urls || [],
+        goalAmount: subtopicData.goalAmount || 0,
     };
     topic.subtopics.push(newSubtopic);
     recalculateTopic(topic);

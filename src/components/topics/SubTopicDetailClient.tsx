@@ -1,5 +1,3 @@
-
-
 'use client'
 
 import { useState, useEffect } from 'react';
@@ -14,7 +12,7 @@ import { ChevronLeft, Edit, Link2, BookOpen } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import SubtopicForm from './SubtopicForm';
 import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 
 // Custom Toast Component
 const Toast = ({ message, type, isVisible, onClose }: { message: string, type: string, isVisible: boolean, onClose: () => void }) => {
@@ -114,8 +112,9 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
         if (isLoading) return;
         setIsLoading(true);
 
-        const oldSetsOf5 = Math.floor(subtopic.repsCompleted / 5);
-
+        const oldReps = subtopic.repsCompleted;
+        const oldEarnedAmount = earnedAmount;
+        
         try {
             const response = await fetch(`/api/sub-topics/${subtopic.id}/reps`, {
                 method: 'POST',
@@ -130,30 +129,32 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
             
             const updatedSubtopic: Subtopic = result.updatedSubtopic;
             const updatedTopic: Topic = result.updatedTopic;
-            const newSetsOf5 = Math.floor(updatedSubtopic.repsCompleted / 5);
 
-            const moneyPerChunk = topic.moneyPer5Reps;
+            const moneyPerRep = updatedSubtopic.repsGoal > 0 ? updatedSubtopic.goalAmount / updatedSubtopic.repsGoal : 0;
+            const newEarnedAmount = updatedSubtopic.repsCompleted * moneyPerRep;
+            const moneyDiff = newEarnedAmount - oldEarnedAmount;
 
-            if (reps > 0 && newSetsOf5 > oldSetsOf5) {
+
+            if (reps > 0 && moneyDiff > 0) {
                 setFlyingNote({ isVisible: true, type: 'fly-in' });
                 playSound('earn');
-                showToast(`+ ₹${moneyPerChunk} earned!`, 'success');
+                showToast(`+ ₹${moneyDiff.toFixed(2)} earned!`, 'success');
                 setTimeout(() => {
                     setSubtopic(updatedSubtopic);
                     setTopic(updatedTopic);
                 }, 1500);
-            } else if (reps < 0 && newSetsOf5 < oldSetsOf5) {
+            } else if (reps < 0 && moneyDiff < 0) {
                 setSubtopic(updatedSubtopic);
                 setTopic(updatedTopic);
                 setFlyingNote({ isVisible: true, type: 'fly-out' });
                 playSound('un-earn');
-                showToast(`- ₹${moneyPerChunk} removed!`, 'error');
+                showToast(`- ₹${Math.abs(moneyDiff).toFixed(2)} removed!`, 'error');
             } else {
                  setSubtopic(updatedSubtopic);
                  setTopic(updatedTopic);
             }
 
-            if (updatedSubtopic.repsCompleted === 18 && subtopic.repsCompleted < 18) {
+            if (updatedSubtopic.repsCompleted === 18 && oldReps < 18) {
                 setShowConfetti(true);
                 setTimeout(() => setShowConfetti(false), 3000);
             }
@@ -179,8 +180,11 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
       }
 
     const progressPercentage = subtopic.repsGoal > 0 ? (subtopic.repsCompleted / subtopic.repsGoal) * 100 : 0;
-    const earnedAmount = Math.floor(subtopic.repsCompleted / 5) * topic.moneyPer5Reps;
-    const stackLayers = Math.floor(subtopic.repsCompleted / 5);
+    const moneyPerRep = subtopic.repsGoal > 0 ? subtopic.goalAmount / subtopic.repsGoal : 0;
+    const earnedAmount = subtopic.repsCompleted * moneyPerRep;
+
+    const stackLayers = subtopic.goalAmount > 0 ? Math.floor((earnedAmount / subtopic.goalAmount) * 4) : 0;
+
 
     return (
         <div className="min-h-screen bg-gray-50 text-gray-800 p-4 sm:p-8">
@@ -223,11 +227,11 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
                      <div className="bg-white rounded-lg p-4 sm:p-6 shadow-md mt-4 w-full">
                         <div className="grid grid-cols-3 gap-4 sm:gap-8 text-center">
                             <div>
-                                <div className="text-xl sm:text-2xl font-bold text-green-600">₹{dashboardData.currentEarnings.toLocaleString()}</div>
+                                <div className="text-xl sm:text-2xl font-bold text-green-600">₹{dashboardData.currentEarnings.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</div>
                                 <div className="text-xs sm:text-sm text-gray-500">Current Money</div>
                             </div>
                             <div>
-                                <div className="text-xl sm:text-2xl font-bold text-blue-600">₹{dashboardData.globalGoal.toLocaleString()}</div>
+                                <div className="text-xl sm:text-2xl font-bold text-blue-600">₹{dashboardData.globalGoal.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</div>
                                 <div className="text-xs sm:text-sm text-gray-500">Global Goal</div>
                             </div>
                             <div>
@@ -250,7 +254,7 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
                         <div>
                             <h2 className="text-2xl font-bold text-gray-900 mb-4">{subtopic.title}</h2>
                             <div className="space-y-4">
-                                <div className="flex justify-between items-center">
+                               <div className="flex justify-between items-center">
                                     <span className="text-gray-600">Status:</span>
                                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                                         progressPercentage === 100 ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
@@ -258,17 +262,17 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
                                         {progressPercentage === 100 ? 'Completed' : 'In-progress'}
                                     </span>
                                 </div>
-                                <div className="flex justify-between items-center">
+                                 <div className="flex justify-between items-center">
                                     <span className="text-gray-600">Repetitions:</span>
                                     <span className="text-2xl font-bold text-gray-800">{subtopic.repsCompleted}/{subtopic.repsGoal}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="text-gray-600">Progress:</span>
-                                    <span className="text-lg font-semibold text-gray-800">{Math.round(progressPercentage)}%</span>
+                                    <span className="text-gray-600">Sub-Topic Goal:</span>
+                                    <span className="text-lg font-semibold text-green-600">₹{subtopic.goalAmount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                     <span className="text-gray-600">Earned Amount:</span>
-                                    <span className="text-lg font-semibold text-green-600">₹{earnedAmount.toLocaleString()}</span>
+                                    <span className="text-lg font-semibold text-green-600">₹{earnedAmount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
                                 </div>
 
                                 <div className="bg-gray-200 rounded-full h-3 mt-2">
@@ -309,7 +313,7 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
                             </div>
                             <div className="mt-4 text-center">
                                 <div className="text-sm text-gray-600">Stack Layers: {stackLayers}/4</div>
-                                <div className="text-xs text-gray-500 mt-1">Each layer = 5 reps = ₹{topic.moneyPer5Reps}</div>
+                                <div className="text-xs text-gray-500 mt-1">Each layer represents 25% of your goal</div>
                             </div>
                         </div>
                     </div>

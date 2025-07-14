@@ -12,10 +12,10 @@ import { type Subtopic } from '@/lib/types';
 import { Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { Badge } from '../ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 
 const formSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters.'),
+  goalAmount: z.coerce.number().min(0, 'Goal amount cannot be negative.'),
   notes: z.string().optional(),
   urls: z.array(z.object({ value: z.string().url('Please enter a valid URL.') })).optional(),
 });
@@ -34,6 +34,7 @@ export default function SubtopicForm({ topicId, subtopicToEdit, onFormSubmit }: 
 
   const defaultValues: Partial<SubtopicFormValues> = {
     title: subtopicToEdit?.title || '',
+    goalAmount: subtopicToEdit?.goalAmount || 0,
     notes: subtopicToEdit?.notes || '',
     urls: subtopicToEdit?.urls?.map(u => ({ value: u })) || [],
   };
@@ -112,6 +113,19 @@ export default function SubtopicForm({ topicId, subtopicToEdit, onFormSubmit }: 
               <FormLabel>Subtopic Title</FormLabel>
               <FormControl>
                 <Input placeholder="e.g., Read chapter 1" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="goalAmount"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Goal Amount (₹)</FormLabel>
+              <FormControl>
+                <Input type="number" placeholder="e.g., 180" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

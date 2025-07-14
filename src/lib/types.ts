@@ -5,6 +5,7 @@ export interface Subtopic {
   repsGoal: number;
   notes?: string;
   urls?: string[];
+  goalAmount: number; // New: Specific money goal for this sub-topic
 }
 
 export interface Topic {
