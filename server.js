@@ -67,7 +67,8 @@ const getEarnedAmountForSubtopic = (subtopic) => {
 };
 
 const recalculateTopic = (topic) => {
-  if (!topic || !topic.subtopics) {
+  if (!topic) return;
+  if (!topic.subtopics) {
     topic.completionPercentage = 0;
     topic.earnings = 0;
     return;
@@ -80,8 +81,8 @@ const recalculateTopic = (topic) => {
 };
 
 const calculateTotals = () => {
-  topics.forEach(recalculateTopic);
-  const currentEarnings = topics.reduce((sum, topic) => sum + (topic.earnings || 0), 0);
+  (topics || []).forEach(recalculateTopic);
+  const currentEarnings = (topics || []).reduce((sum, topic) => sum + (topic.earnings || 0), 0);
   const progress = globalGoal > 0 ? (currentEarnings / globalGoal) * 100 : 0;
   return { currentEarnings, progress };
 };
@@ -104,7 +105,7 @@ app.get('/api/dashboard', (req, res) => {
     globalGoal,
     currentEarnings: Math.round(currentEarnings),
     progress: Math.round(progress),
-    topics: topics.map(({ id, title, category, earnings, completionPercentage }) => ({
+    topics: (topics || []).map(({ id, title, category, earnings, completionPercentage }) => ({
       id,
       title,
       category,
