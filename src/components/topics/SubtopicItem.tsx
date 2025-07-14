@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { type Subtopic, type Topic } from '@/lib/types';
-import { Minus, Plus, PartyPopper, MoreVertical } from 'lucide-react';
+import { Minus, Plus, PartyPopper } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -23,7 +23,9 @@ export default function SubtopicItem({ subtopic, topicId, onRepLogSuccess }: Sub
   const repsGoal = subtopic.repsGoal;
   const progress = repsGoal > 0 ? (repsCompleted / repsGoal) * 100 : 0;
   
-  const handleLogRep = async (reps: number) => {
+  const handleLogRep = async (e: React.MouseEvent, reps: number) => {
+    e.stopPropagation(); // Stop the event from bubbling up to the Link
+    e.preventDefault(); // Prevent the Link navigation
     if (isSubmitting) return;
     setIsSubmitting(true);
     
@@ -62,26 +64,21 @@ export default function SubtopicItem({ subtopic, topicId, onRepLogSuccess }: Sub
   };
 
   return (
-    <div className="p-4 border rounded-lg bg-card-foreground/5 relative overflow-hidden">
+    <Link href={`/sub-topics/${subtopic.id}`} className="block group relative overflow-hidden rounded-lg border bg-card-foreground/5 p-4 transition-all hover:bg-card-foreground/10">
       <div className="flex items-center gap-4">
         <div className="flex-grow">
-          <Link href={`/sub-topics/${subtopic.id}?topicId=${topicId}`} className="font-semibold hover:underline">{subtopic.title}</Link>
+          <p className="font-semibold group-hover:underline">{subtopic.title}</p>
           <div className="flex items-center gap-2 mt-1">
             <Progress value={progress} className="h-2 w-full" aria-label={`Progress for ${subtopic.title}`} />
             <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">{repsCompleted} / {repsGoal}</span>
           </div>
         </div>
         <div className="flex items-center justify-end gap-2">
-            <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleLogRep(-1)} disabled={isSubmitting || repsCompleted <= 0}>
+            <Button variant="outline" size="icon" className="h-8 w-8" onClick={(e) => handleLogRep(e, -1)} disabled={isSubmitting || repsCompleted <= 0}>
                 <Minus className="h-4 w-4" />
             </Button>
-            <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleLogRep(1)} disabled={isSubmitting || repsCompleted >= repsGoal}>
+            <Button variant="outline" size="icon" className="h-8 w-8" onClick={(e) => handleLogRep(e, 1)} disabled={isSubmitting || repsCompleted >= repsGoal}>
                 <Plus className="h-4 w-4" />
-            </Button>
-             <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-                <Link href={`/sub-topics/${subtopic.id}?topicId=${topicId}`}>
-                    <MoreVertical className="h-4 w-4" />
-                </Link>
             </Button>
         </div>
       </div>
@@ -94,6 +91,6 @@ export default function SubtopicItem({ subtopic, topicId, onRepLogSuccess }: Sub
            )} style={{ animationDuration: '2000ms', animationFillMode: 'forwards' }} />
          </div>
        )}
-    </div>
+    </Link>
   );
 }

@@ -8,6 +8,8 @@ import CustomConfetti from './Confetti';
 import FlyingNote from './FlyingNote';
 import MoneyStack from './MoneyStack';
 import { Button } from '../ui/button';
+import Link from 'next/link';
+import { ChevronLeft } from 'lucide-react';
 
 // Custom Toast Component
 const Toast = ({ message, type, isVisible, onClose }: { message: string, type: string, isVisible: boolean, onClose: () => void }) => {
@@ -172,11 +174,19 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
 
             <div className="max-w-6xl mx-auto">
                 <header className="text-center mb-12">
-                    <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
-                        Sub-Topic Tracker
-                    </h1>
+                     <div className="relative inline-block">
+                        <Button asChild variant="ghost" className="absolute -left-32 top-1/2 -translate-y-1/2 text-white/80 hover:text-white hover:bg-white/10">
+                            <Link href={`/topics/${topic.id}`}>
+                                <ChevronLeft className="mr-2 h-4 w-4" />
+                                Back
+                            </Link>
+                        </Button>
+                        <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
+                            Sub-Topic Tracker
+                        </h1>
+                    </div>
                    {dashboardData && (
-                     <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 sm:p-6 inline-block">
+                     <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 sm:p-6 inline-block mt-4">
                         <div className="grid grid-cols-3 gap-4 sm:gap-8 text-center">
                             <div>
                                 <div className="text-xl sm:text-2xl font-bold text-green-400">₹{dashboardData.currentEarnings.toLocaleString()}</div>
@@ -269,11 +279,6 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
                             </div>
                         </div>
                     </div>
-                </div>
-                 <div className="text-center">
-                    <Button asChild variant="link">
-                        <a href={`/topics/${topic.id}`} className="text-white/80 hover:text-white">Back to Topic: {topic.title}</a>
-                    </Button>
                 </div>
             </div>
         </div>
