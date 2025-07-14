@@ -1,5 +1,6 @@
+
 import { NextResponse } from 'next/server';
-import { logReps, getDashboardData } from '@/lib/mock-data';
+import { logReps, getDashboardData, getTopicBySubtopicId } from '@/lib/mock-data';
 
 export async function POST(
   request: Request,
@@ -7,18 +8,19 @@ export async function POST(
 ) {
   try {
     const { reps } = await request.json();
-    if (typeof reps !== 'number') {
-      return NextResponse.json({ message: 'Invalid reps value' }, { status: 400 });
+    if (typeof reps !== 'number' || (reps !== 1 && reps !== -1)) {
+      return NextResponse.json({ message: 'Invalid reps value. Must be 1 or -1.' }, { status: 400 });
     }
     const result = logReps(params.subTopicId, reps);
     if (!result) {
-      return NextResponse.json({ message: 'Subtopic not found' }, { status: 404 });
+      return NextResponse.json({ message: 'Subtopic not found or rep limit reached.' }, { status: 404 });
     }
-    const dashboardData = getDashboardData();
+    const topic = getTopicBySubtopicId(params.subTopicId);
+    
     return NextResponse.json({ 
         message: 'Reps logged successfully', 
-        ...result,
-        dashboard: dashboardData
+        updatedSubtopic: result.updatedSubtopic,
+        updatedTopic: topic
     });
   } catch (error: any) {
     console.error('Error logging reps:', error.message);

@@ -1,3 +1,4 @@
+
 import { type DashboardData, type Topic, type Subtopic } from './types';
 
 // Let's use 'let' to simulate a mutable database
@@ -103,11 +104,23 @@ export const getTopicById = (id: string): Topic | undefined => {
   return undefined;
 };
 
+export const getTopicBySubtopicId = (subtopicId: string): Topic | undefined => {
+    const topic = topics.find(t => t.subtopics.some(st => st.id === subtopicId));
+    if (topic) {
+        return getTopicById(topic.id);
+    }
+    return undefined;
+}
+
 export const logReps = (subtopicId: string, reps: number) => {
     for (const topic of topics) {
         const subtopic = topic.subtopics.find(st => st.id === subtopicId);
         if (subtopic) {
-            subtopic.repsCompleted += reps;
+            const newReps = subtopic.repsCompleted + reps;
+            if (newReps < 0 || newReps > subtopic.repsGoal) {
+                return null;
+            }
+            subtopic.repsCompleted = newReps;
             recalculateTopic(topic);
             return { updatedTopic: getTopicById(topic.id), updatedSubtopic: subtopic };
         }

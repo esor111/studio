@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -14,7 +15,6 @@ interface SubtopicItemProps {
 }
 
 export default function SubtopicItem({ subtopic, topicId, onRepLogSuccess }: SubtopicItemProps) {
-  const [repsToAdd, setRepsToAdd] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const { toast } = useToast();
@@ -23,15 +23,15 @@ export default function SubtopicItem({ subtopic, topicId, onRepLogSuccess }: Sub
   const repsGoal = subtopic.repsGoal;
   const progress = repsGoal > 0 ? (repsCompleted / repsGoal) * 100 : 0;
   
-  const handleLogReps = async () => {
-    if (repsToAdd === 0) return;
+  const handleLogRep = async (reps: number) => {
+    if (isSubmitting) return;
     setIsSubmitting(true);
     
     try {
         const response = await fetch(`/api/sub-topics/${subtopic.id}/reps`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ reps: repsToAdd }),
+            body: JSON.stringify({ reps: reps }),
         });
 
         const result = await response.json();
@@ -40,18 +40,15 @@ export default function SubtopicItem({ subtopic, topicId, onRepLogSuccess }: Sub
             throw new Error(result.message || 'Failed to log reps');
         }
 
-        const resTopic = await fetch(`/api/topics/${topicId}`);
-        const updatedTopic = await resTopic.json();
-        onRepLogSuccess(updatedTopic);
+        onRepLogSuccess(result.updatedTopic);
         
         const oldSetsOf5 = Math.floor(repsCompleted / 5);
         const newSetsOf5 = Math.floor(result.updatedSubtopic.repsCompleted / 5);
-        if (newSetsOf5 > oldSetsOf5) {
+
+        if (reps > 0 && newSetsOf5 > oldSetsOf5) {
             setShowCelebration(true);
             setTimeout(() => setShowCelebration(false), 2000);
         }
-        
-        setRepsToAdd(1);
 
     } catch (error: any) {
         toast({
@@ -75,16 +72,12 @@ export default function SubtopicItem({ subtopic, topicId, onRepLogSuccess }: Sub
           </div>
         </div>
         <div className="flex items-center justify-end gap-2">
-            <div className="flex items-center gap-1 rounded-md border bg-background p-1">
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setRepsToAdd(v => Math.max(1, v - 1))} disabled={isSubmitting}>
-                    <Minus className="h-4 w-4" />
-                </Button>
-                <span className="w-10 text-center font-bold">{repsToAdd}</span>
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setRepsToAdd(v => v + 1)} disabled={isSubmitting}>
-                    <Plus className="h-4 w-4" />
-                </Button>
-            </div>
-          <Button onClick={handleLogReps} disabled={isSubmitting}>Log Reps</Button>
+            <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleLogRep(-1)} disabled={isSubmitting || repsCompleted <= 0}>
+                <Minus className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleLogRep(1)} disabled={isSubmitting || repsCompleted >= repsGoal}>
+                <Plus className="h-4 w-4" />
+            </Button>
         </div>
       </div>
        {showCelebration && (
