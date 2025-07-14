@@ -67,7 +67,7 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
             setDashboardData(data);
         }
         fetchDashboardData();
-    }, [subtopic]);
+    }, []); // Fetch only once on mount
     
     const showToast = (message: string, type: 'success' | 'error' = 'success') => {
         setToast({ isVisible: true, message, type });
@@ -109,11 +109,8 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
     };
 
     const handleRepAction = async (reps: 1 | -1) => {
-        if (isLoading) return;
+        if (isLoading || !dashboardData) return;
         setIsLoading(true);
-
-        const oldReps = subtopic.repsCompleted;
-        const oldEarnedAmount = earnedAmount;
         
         try {
             const response = await fetch(`/api/sub-topics/${subtopic.id}/reps`, {
@@ -131,30 +128,41 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
             const updatedTopic: Topic = result.updatedTopic;
 
             const moneyPerRep = updatedSubtopic.repsGoal > 0 ? updatedSubtopic.goalAmount / updatedSubtopic.repsGoal : 0;
+            const oldEarnedAmount = subtopic.repsCompleted * moneyPerRep;
             const newEarnedAmount = updatedSubtopic.repsCompleted * moneyPerRep;
             const moneyDiff = newEarnedAmount - oldEarnedAmount;
 
+            // Client-side state synchronization
+            const updateState = () => {
+                setSubtopic(updatedSubtopic);
+                setTopic(updatedTopic);
+                setDashboardData(prevData => {
+                    if (!prevData) return null;
+                    const newCurrentEarnings = prevData.currentEarnings + moneyDiff;
+                    const newProgress = prevData.globalGoal > 0 ? (newCurrentEarnings / prevData.globalGoal) * 100 : 0;
+                    return {
+                        ...prevData,
+                        currentEarnings: newCurrentEarnings,
+                        progress: newProgress,
+                    };
+                });
+            };
 
             if (reps > 0 && moneyDiff > 0) {
                 setFlyingNote({ isVisible: true, type: 'fly-in' });
                 playSound('earn');
                 showToast(`+ ₹${moneyDiff.toFixed(2)} earned!`, 'success');
-                setTimeout(() => {
-                    setSubtopic(updatedSubtopic);
-                    setTopic(updatedTopic);
-                }, 1500);
+                setTimeout(updateState, 1500);
             } else if (reps < 0 && moneyDiff < 0) {
-                setSubtopic(updatedSubtopic);
-                setTopic(updatedTopic);
+                updateState();
                 setFlyingNote({ isVisible: true, type: 'fly-out' });
                 playSound('un-earn');
                 showToast(`- ₹${Math.abs(moneyDiff).toFixed(2)} removed!`, 'error');
             } else {
-                 setSubtopic(updatedSubtopic);
-                 setTopic(updatedTopic);
+                 updateState();
             }
 
-            if (updatedSubtopic.repsCompleted === 18 && oldReps < 18) {
+            if (updatedSubtopic.repsCompleted === 18 && subtopic.repsCompleted < 18) {
                 setShowConfetti(true);
                 setTimeout(() => setShowConfetti(false), 3000);
             }
@@ -171,7 +179,26 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
     };
 
     const handleSubtopicFormSuccess = (updatedSubtopic: Subtopic) => {
+        const oldEarnedAmount = earnedAmount;
         setSubtopic(updatedSubtopic);
+
+        // Recalculate everything after goal amount changes
+        const newEarnedAmount = (updatedSubtopic.repsCompleted / updatedSubtopic.repsGoal) * updatedSubtopic.goalAmount;
+        const moneyDiff = newEarnedAmount - oldEarnedAmount;
+
+        setDashboardData(prevData => {
+            if (!prevData) return null;
+            const newCurrentEarnings = prevData.currentEarnings + moneyDiff;
+            const newProgress = prevData.globalGoal > 0 ? (newCurrentEarnings / prevData.globalGoal) * 100 : 0;
+            return { ...prevData, currentEarnings: newCurrentEarnings, progress: newProgress };
+        });
+
+        // We also need to refetch the topic to get its recalculated earnings
+         fetch(`/api/topics/${topic.id}`)
+            .then(res => res.json())
+            .then(updatedTopic => setTopic(updatedTopic));
+
+
         setIsEditOpen(false);
         shadToast({
           title: "Sub-topic Updated!",
@@ -180,9 +207,7 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
       }
 
     const progressPercentage = subtopic.repsGoal > 0 ? (subtopic.repsCompleted / subtopic.repsGoal) * 100 : 0;
-    const moneyPerRep = subtopic.repsGoal > 0 ? subtopic.goalAmount / subtopic.repsGoal : 0;
-    const earnedAmount = subtopic.repsCompleted * moneyPerRep;
-
+    const earnedAmount = subtopic.repsGoal > 0 ? (subtopic.repsCompleted / subtopic.repsGoal) * subtopic.goalAmount : 0;
     const stackLayers = subtopic.goalAmount > 0 ? Math.floor((earnedAmount / subtopic.goalAmount) * 10) : 0;
 
 
@@ -359,3 +384,5 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
         </div>
     );
 }
+
+    
