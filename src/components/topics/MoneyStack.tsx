@@ -8,7 +8,7 @@ const MoneyStack = ({ stackLayers } : { stackLayers: number }) => {
   
   return (
     <div
-      className="relative mx-auto flex items-center justify-center"
+      className="relative mx-auto flex items-end justify-center"
       style={{
         width: 420,
         height: 180 + (stackLayers - 1) * 40,
@@ -16,7 +16,8 @@ const MoneyStack = ({ stackLayers } : { stackLayers: number }) => {
       }}
     >
         <motion.div
-            className="relative w-[400px] h-[180px]"
+            className="absolute left-1/2 -translate-x-1/2 w-[400px] h-[180px]"
+            style={{ bottom: 0 }}
             whileHover="hover"
             initial="initial"
         >
