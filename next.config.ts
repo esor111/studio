@@ -17,9 +17,15 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
-       {
+      {
         protocol: 'https',
         hostname: 'picsum.photos',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'kaha-assets-dev.s3.ap-south-1.amazonaws.com',
         port: '',
         pathname: '/**',
       },

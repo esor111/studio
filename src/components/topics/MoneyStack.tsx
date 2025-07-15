@@ -7,16 +7,16 @@ const MoneyStack = ({ stackLayers } : { stackLayers: number }) => {
   const layers = Array.from({ length: stackLayers });
   
   return (
-    <div className="relative w-64 h-52 mx-auto flex items-center justify-center">
+    <div className="relative w-[420px] h-[240px] mx-auto flex items-center justify-center">
         <motion.div
-            className="relative w-48 h-24"
+            className="relative w-[400px] h-[180px]"
             whileHover="hover"
             initial="initial"
         >
             {layers.map((_, i) => (
                 <motion.div
                     key={i}
-                    className="absolute w-48 h-24 rounded-lg shadow-lg flex items-center justify-center"
+                    className="absolute w-[400px] h-[180px] rounded-lg shadow-lg flex items-center justify-center"
                     style={{
                         bottom: 0,
                         left: 0,
@@ -59,8 +59,8 @@ const MoneyStack = ({ stackLayers } : { stackLayers: number }) => {
                     <Image 
                         src="https://kaha-assets-dev.s3.ap-south-1.amazonaws.com/4c394e41564623597e7023695f3325306f7b73384f5e5037356b4f61_1752563892542"
                         alt="Money bill"
-                        width={200}
-                        height={100}
+                        width={400}
+                        height={180}
                         className="w-full h-full object-cover rounded-lg border-2 border-green-700/50"
                         data-ai-hint="money currency"
                         priority={i < 3} // Prioritize loading the first few images
