@@ -57,7 +57,7 @@ const MoneyStack = ({ stackLayers } : { stackLayers: number }) => {
                     animate="animate"
                 >
                     <Image 
-                        src="https://placehold.co/200x100.png"
+                        src="https://picsum.photos/200/300"
                         alt="Money bill"
                         width={200}
                         height={100}
