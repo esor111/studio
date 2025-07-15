@@ -15,7 +15,12 @@ import { Badge } from '../ui/badge';
 
 const formSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters.'),
-  goalAmount: z.coerce.number().min(0, 'Goal amount cannot be negative.'),
+  goalAmount: z
+    .coerce.number()
+    .min(0, 'Goal amount cannot be negative.')
+    .refine((val) => val % 1000 === 0, {
+      message: 'Goal amount must be in multiples of ₹1000.',
+    }),
   notes: z.string().optional(),
   urls: z.array(z.object({ value: z.string().url('Please enter a valid URL.') })).optional(),
 });
