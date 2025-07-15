@@ -35,7 +35,7 @@ const nextConfig: NextConfig = {
   },
   env: {
     NEXT_PUBLIC_API_URL: process.env.NODE_ENV === 'development'
-      ? 'http://localhost:9002' // URL of the Next.js app itself to use the proxy
+      ? 'https://dev.kaha.com.np/exp-backend' // Remote backend in dev as well
       : 'https://dev.kaha.com.np/exp-backend', // Production URL
   },
 };
