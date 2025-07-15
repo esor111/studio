@@ -1,27 +1,26 @@
 
 'use client'
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 const MoneyStack = ({ stackLayers } : { stackLayers: number }) => {
   const layers = Array.from({ length: stackLayers });
   
   return (
-    <div className="relative w-52 h-48 mx-auto flex items-center justify-center">
+    <div className="relative w-64 h-52 mx-auto flex items-center justify-center">
         <motion.div
-            className="relative w-40 h-24"
+            className="relative w-48 h-24"
             whileHover="hover"
             initial="initial"
         >
             {layers.map((_, i) => (
                 <motion.div
                     key={i}
-                    className="absolute w-40 h-24 rounded-lg shadow-lg border-2 border-green-700/50 flex items-center justify-center text-green-900 font-bold text-2xl"
+                    className="absolute w-48 h-24 rounded-lg shadow-lg flex items-center justify-center"
                     style={{
                         bottom: 0,
                         left: 0,
                         zIndex: i,
-                        backgroundImage: 'linear-gradient(to right, #6ee7b7, #34d399, #059669)',
-                        boxShadow: '0 2px 5px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3)',
                     }}
                     variants={{
                         initial: {
@@ -32,9 +31,9 @@ const MoneyStack = ({ stackLayers } : { stackLayers: number }) => {
                             opacity: i === 0 ? 1 : 0,
                         },
                         animate: {
-                            y: i * -4,
-                            x: i * -2,
-                            rotate: -6 + i * 2,
+                            y: i * -5,
+                            x: i * -3,
+                            rotate: -8 + i * 2.5,
                             scale: 1,
                             opacity: 1,
                             transition: {
@@ -45,9 +44,9 @@ const MoneyStack = ({ stackLayers } : { stackLayers: number }) => {
                             }
                         },
                         hover: {
-                            y: i * -12,
-                            x: i * 2,
-                            rotate: -10 + i * 5,
+                            y: i * -14,
+                            x: i * 3,
+                            rotate: -12 + i * 6,
                             transition: {
                                 type: 'spring',
                                 stiffness: 300,
@@ -57,7 +56,15 @@ const MoneyStack = ({ stackLayers } : { stackLayers: number }) => {
                     }}
                     animate="animate"
                 >
-                    <span style={{ textShadow: '1px 1px 0px rgba(255,255,255,0.5)' }}>₹</span>
+                    <Image 
+                        src="https://placehold.co/200x100.png"
+                        alt="Money bill"
+                        width={200}
+                        height={100}
+                        className="w-full h-full object-cover rounded-lg border-2 border-green-700/50"
+                        data-ai-hint="money currency"
+                        priority={i < 3} // Prioritize loading the first few images
+                    />
                 </motion.div>
             ))}
         </motion.div>
