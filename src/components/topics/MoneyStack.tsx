@@ -57,7 +57,7 @@ const MoneyStack = ({ stackLayers } : { stackLayers: number }) => {
                     animate="animate"
                 >
                     <Image 
-                        src="https://picsum.photos/200/300"
+                        src="https://kaha-assets-dev.s3.ap-south-1.amazonaws.com/4c394e41564623597e7023695f3325306f7b73384f5e5037356b4f61_1752563892542"
                         alt="Money bill"
                         width={200}
                         height={100}
