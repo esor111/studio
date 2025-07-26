@@ -6,9 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Settings, Target, Calendar, CalendarDays, CalendarRange } from 'lucide-react';
+import { Target } from 'lucide-react';
 import { Activity } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { activityApi } from '@/lib/api';
 
 interface GoalSettingsDialogProps {
   activity: Activity;
@@ -33,15 +34,8 @@ export default function GoalSettingsDialog({ activity, onGoalsUpdate }: GoalSett
     setIsLoading(true);
     
     try {
-      // TODO: Replace with actual API call when backend endpoint is available
-      // const response = await fetch(`/api/activities/${activity.id}/goals`, {
-      //   method: 'PUT',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ goals })
-      // });
-      
-      // For now, just simulate the update
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Use the real API to update the activity goals
+      const updatedActivity = await activityApi.update(activity.id, { goals });
       
       onGoalsUpdate?.(activity.id, goals);
       
@@ -52,9 +46,10 @@ export default function GoalSettingsDialog({ activity, onGoalsUpdate }: GoalSett
       
       setIsOpen(false);
     } catch (error) {
+      console.error('Error updating goals:', error);
       toast({
         title: "Error",
-        description: "Failed to update goals. This feature requires backend API support.",
+        description: error instanceof Error ? error.message : "Failed to update goals. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -82,7 +77,7 @@ export default function GoalSettingsDialog({ activity, onGoalsUpdate }: GoalSett
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
-          <Settings className="h-4 w-4 mr-2" />
+          <Target className="h-4 w-4 mr-2" />
           Set Goals
         </Button>
       </DialogTrigger>
@@ -114,7 +109,7 @@ export default function GoalSettingsDialog({ activity, onGoalsUpdate }: GoalSett
             {/* Daily Goal */}
             <div className="space-y-2">
               <Label htmlFor="daily" className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
+                <Target className="h-4 w-4" />
                 Daily Goal
               </Label>
               <Input
@@ -133,7 +128,7 @@ export default function GoalSettingsDialog({ activity, onGoalsUpdate }: GoalSett
             {/* Weekly Goal */}
             <div className="space-y-2">
               <Label htmlFor="weekly" className="flex items-center gap-2">
-                <CalendarDays className="h-4 w-4" />
+                <Target className="h-4 w-4" />
                 Weekly Goal
               </Label>
               <Input
@@ -152,7 +147,7 @@ export default function GoalSettingsDialog({ activity, onGoalsUpdate }: GoalSett
             {/* Monthly Goal */}
             <div className="space-y-2">
               <Label htmlFor="monthly" className="flex items-center gap-2">
-                <CalendarRange className="h-4 w-4" />
+                <Target className="h-4 w-4" />
                 Monthly Goal
               </Label>
               <Input
@@ -205,11 +200,6 @@ export default function GoalSettingsDialog({ activity, onGoalsUpdate }: GoalSett
             >
               {isLoading ? 'Saving...' : 'Save Goals'}
             </Button>
-          </div>
-
-          {/* Note about backend support */}
-          <div className="text-xs text-muted-foreground bg-muted p-3 rounded">
-            <strong>Note:</strong> Goal setting requires backend API support. Currently, this is a UI preview that simulates the functionality.
           </div>
         </div>
       </DialogContent>

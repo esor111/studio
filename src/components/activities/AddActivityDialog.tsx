@@ -6,9 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
-import { Plus, Target, Calendar, CalendarDays, CalendarRange } from 'lucide-react';
+import { Plus, Target } from 'lucide-react';
 import { Activity } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { activityApi } from '@/lib/api';
 
 interface AddActivityDialogProps {
   onActivityAdded: (newActivity: Activity) => void;
@@ -79,37 +80,18 @@ export default function AddActivityDialog({ onActivityAdded }: AddActivityDialog
     setIsLoading(true);
     
     try {
-      // TODO: Replace with actual API call when backend endpoint is available
-      // const response = await fetch('/api/activities', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     name: formData.name,
-      //     goals: {
-      //       daily: formData.daily_goal,
-      //       weekly: formData.weekly_goal,
-      //       monthly: formData.monthly_goal,
-      //       yearly: formData.yearly_goal,
-      //     }
-      //   })
-      // });
-      
-      // For now, simulate creating a new activity
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const newActivity: Activity = {
-        id: `temp-${Date.now()}`, // Temporary ID
+      // Use the real API to create the activity
+      const activityData = {
         name: formData.name,
-        reps: 0,
         goals: {
           daily: formData.daily_goal,
           weekly: formData.weekly_goal,
           monthly: formData.monthly_goal,
           yearly: formData.yearly_goal,
-        },
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+        }
       };
+      
+      const newActivity = await activityApi.create(activityData);
       
       onActivityAdded(newActivity);
       
@@ -129,9 +111,10 @@ export default function AddActivityDialog({ onActivityAdded }: AddActivityDialog
       
       setIsOpen(false);
     } catch (error) {
+      console.error('Error creating activity:', error);
       toast({
         title: "Error",
-        description: "Failed to add activity. This feature requires backend API support.",
+        description: error instanceof Error ? error.message : "Failed to add activity. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -198,7 +181,7 @@ export default function AddActivityDialog({ onActivityAdded }: AddActivityDialog
             {/* Daily Goal */}
             <div className="space-y-2">
               <Label htmlFor="daily" className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
+                <Target className="h-4 w-4" />
                 Daily Goal
               </Label>
               <Input
@@ -215,7 +198,7 @@ export default function AddActivityDialog({ onActivityAdded }: AddActivityDialog
             {/* Weekly Goal */}
             <div className="space-y-2">
               <Label htmlFor="weekly" className="flex items-center gap-2">
-                <CalendarDays className="h-4 w-4" />
+                <Target className="h-4 w-4" />
                 Weekly Goal
               </Label>
               <Input
@@ -231,7 +214,7 @@ export default function AddActivityDialog({ onActivityAdded }: AddActivityDialog
             {/* Monthly Goal */}
             <div className="space-y-2">
               <Label htmlFor="monthly" className="flex items-center gap-2">
-                <CalendarRange className="h-4 w-4" />
+                <Target className="h-4 w-4" />
                 Monthly Goal
               </Label>
               <Input
@@ -280,15 +263,6 @@ export default function AddActivityDialog({ onActivityAdded }: AddActivityDialog
               {isLoading ? 'Adding...' : 'Add Activity'}
             </Button>
           </div>
-
-          {/* Note about backend support */}
-          <Card className="bg-muted/50">
-            <CardContent className="pt-4">
-              <div className="text-xs text-muted-foreground">
-                <strong>Note:</strong> Adding new activities requires backend API support. Currently, this creates a temporary activity for UI demonstration.
-              </div>
-            </CardContent>
-          </Card>
         </form>
       </DialogContent>
     </Dialog>
