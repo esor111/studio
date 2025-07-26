@@ -14,8 +14,9 @@ async function getTopicData(topicId: string): Promise<Topic | null> {
   return res.json();
 }
 
-export default async function TopicDetailPage({ params }: { params: { topicId: string } }) {
-  const topicData = await getTopicData(params.topicId);
+export default async function TopicDetailPage({ params }: { params: Promise<{ topicId: string }> }) {
+  const { topicId } = await params;
+  const topicData = await getTopicData(topicId);
 
   if (!topicData) {
     return (

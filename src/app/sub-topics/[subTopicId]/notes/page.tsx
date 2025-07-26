@@ -12,8 +12,9 @@ async function getData(subTopicId: string): Promise<Subtopic | null> {
     return res.json();
 }
 
-export default async function SubtopicNotesPage({ params }: { params: { subTopicId: string } }) {
-    const subtopic = await getData(params.subTopicId);
+export default async function SubtopicNotesPage({ params }: { params: Promise<{ subTopicId: string }> }) {
+    const { subTopicId } = await params;
+    const subtopic = await getData(subTopicId);
 
     if (!subtopic) {
         return (
@@ -30,7 +31,7 @@ export default async function SubtopicNotesPage({ params }: { params: { subTopic
         <div className="space-y-6">
             <div>
                 <Button asChild variant="ghost" className="pl-0">
-                    <Link href={`/sub-topics/${params.subTopicId}`}>
+                    <Link href={`/sub-topics/${subTopicId}`}>
                         <ChevronLeft className="mr-2 h-4 w-4" />
                         Back to Sub-Topic
                     </Link>

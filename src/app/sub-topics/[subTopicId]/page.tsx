@@ -11,21 +11,25 @@ async function getData(subTopicId: string): Promise<{subtopic: Subtopic, topic: 
     const subtopic: Subtopic = await subtopicRes.json();
 
     let topic: Topic | null = null;
-    // We need to find the parent topic. This is a bit inefficient without a dedicated endpoint.
-    // In a real app, you might have /api/sub-topics/[id]/details which returns both.
+    
+    // OPTIMIZED: Fetch all topics in parallel instead of sequentially
     const dashboardRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/dashboard`, { cache: 'no-store' });
     if (dashboardRes.ok) {
       const dashboard: { topics: { id: string }[] } = await dashboardRes.json();
-      for (const topicSummary of dashboard.topics) {
-          const topicRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/topics/${topicSummary.id}`, { cache: 'no-store' });
-          if (topicRes.ok) {
-              const fullTopic: Topic = await topicRes.json();
-              if (fullTopic.subtopics.some(st => st.id === subTopicId)) {
-                  topic = fullTopic;
-                  break;
-              }
-          }
-      }
+      
+      // Fetch all topics in parallel using Promise.all
+      const topicPromises = dashboard.topics.map(topicSummary => 
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/topics/${topicSummary.id}`, { cache: 'no-store' })
+          .then(res => res.ok ? res.json() : null)
+          .catch(() => null)
+      );
+      
+      const allTopics = await Promise.all(topicPromises);
+      
+      // Find the topic that contains this subtopic
+      topic = allTopics.find((fullTopic: Topic | null) => 
+        fullTopic && fullTopic.subtopics.some(st => st.id === subTopicId)
+      ) || null;
     }
     
     if (!topic) return null;
@@ -33,7 +37,8 @@ async function getData(subTopicId: string): Promise<{subtopic: Subtopic, topic: 
     return { subtopic, topic };
 }
 
-export default async function SubTopicDetailPage({ params: { subTopicId } }: { params: { subTopicId: string } }) {
+export default async function SubTopicDetailPage({ params }: { params: Promise<{ subTopicId: string }> }) {
+  const { subTopicId } = await params;
   const data = await getData(subTopicId);
 
   if (!data) {
@@ -56,7 +61,7 @@ export default async function SubTopicDetailPage({ params: { subTopicId } }: { p
   );
 }
 
-export function SubTopicDetailSkeleton() {
+function SubTopicDetailSkeleton() {
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-8">
       <div className="max-w-6xl mx-auto">
