@@ -17,9 +17,15 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
-       {
+      {
         protocol: 'https',
         hostname: 'picsum.photos',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'kaha-assets-dev.s3.ap-south-1.amazonaws.com',
         port: '',
         pathname: '/**',
       },
@@ -35,8 +41,11 @@ const nextConfig: NextConfig = {
   },
   env: {
     NEXT_PUBLIC_API_URL: process.env.NODE_ENV === 'development'
-      ? 'https://dev.kaha.com.np/exp-backend' // Remote backend in dev as well
+      ? 'https://dev.kaha.com.np/exp-backend' // Original backend for dashboard/topics
       : 'https://dev.kaha.com.np/exp-backend', // Production URL
+    NEXT_PUBLIC_ACTIVITY_API_URL: process.env.NODE_ENV === 'development'
+      ? 'https://dev.kaha.com.np/exp-backend/api' // Activity backend API
+      : 'https://dev.kaha.com.np/exp-backend/api', // Production activity API URL
   },
 };
 

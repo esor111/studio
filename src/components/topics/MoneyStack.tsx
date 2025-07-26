@@ -7,16 +7,24 @@ const MoneyStack = ({ stackLayers } : { stackLayers: number }) => {
   const layers = Array.from({ length: stackLayers });
   
   return (
-    <div className="relative w-64 h-52 mx-auto flex items-center justify-center">
+    <div
+      className="relative mx-auto flex items-end justify-center"
+      style={{
+        width: 420,
+        height: 180 + (stackLayers - 1) * 40,
+        transition: 'height 0.3s',
+      }}
+    >
         <motion.div
-            className="relative w-48 h-24"
+            className="absolute left-1/2 -translate-x-1/2 w-[400px] h-[180px]"
+            style={{ bottom: 0 }}
             whileHover="hover"
             initial="initial"
         >
             {layers.map((_, i) => (
                 <motion.div
                     key={i}
-                    className="absolute w-48 h-24 rounded-lg shadow-lg flex items-center justify-center"
+                    className="absolute w-[400px] h-[180px] rounded-lg shadow-lg flex items-center justify-center"
                     style={{
                         bottom: 0,
                         left: 0,
@@ -24,14 +32,14 @@ const MoneyStack = ({ stackLayers } : { stackLayers: number }) => {
                     }}
                     variants={{
                         initial: {
-                            y: i * -2,
+                            y: i * -22,
                             x: i * -2,
                             rotate: -4 + i * 1.5,
                             scale: i === 0 ? 1 : 0,
                             opacity: i === 0 ? 1 : 0,
                         },
                         animate: {
-                            y: i * -5,
+                            y: i * -40,
                             x: i * -3,
                             rotate: -8 + i * 2.5,
                             scale: 1,
@@ -44,7 +52,7 @@ const MoneyStack = ({ stackLayers } : { stackLayers: number }) => {
                             }
                         },
                         hover: {
-                            y: i * -14,
+                            y: i * -90,
                             x: i * 3,
                             rotate: -12 + i * 6,
                             transition: {
@@ -57,10 +65,10 @@ const MoneyStack = ({ stackLayers } : { stackLayers: number }) => {
                     animate="animate"
                 >
                     <Image 
-                        src="https://picsum.photos/200/300"
+                        src="https://kaha-assets-dev.s3.ap-south-1.amazonaws.com/4c394e41564623597e7023695f3325306f7b73384f5e5037356b4f61_1752563892542"
                         alt="Money bill"
-                        width={200}
-                        height={100}
+                        width={400}
+                        height={180}
                         className="w-full h-full object-cover rounded-lg border-2 border-green-700/50"
                         data-ai-hint="money currency"
                         priority={i < 3} // Prioritize loading the first few images

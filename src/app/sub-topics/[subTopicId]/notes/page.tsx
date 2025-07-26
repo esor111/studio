@@ -7,13 +7,19 @@ import { ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 
 async function getData(subTopicId: string): Promise<Subtopic | null> {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sub-topics/${subTopicId}`, { cache: 'no-store' });
-    if (!res.ok) return null;
-    return res.json();
+    try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sub-topics/${subTopicId}`, { cache: 'no-store' });
+        if (!res.ok) return null;
+        return res.json();
+    } catch (error) {
+        console.error('Error fetching subtopic data:', error);
+        return null;
+    }
 }
 
-export default async function SubtopicNotesPage({ params }: { params: { subTopicId: string } }) {
-    const subtopic = await getData(params.subTopicId);
+export default async function SubtopicNotesPage({ params }: { params: Promise<{ subTopicId: string }> }) {
+    const { subTopicId } = await params;
+    const subtopic = await getData(subTopicId);
 
     if (!subtopic) {
         return (
@@ -30,7 +36,7 @@ export default async function SubtopicNotesPage({ params }: { params: { subTopic
         <div className="space-y-6">
             <div>
                 <Button asChild variant="ghost" className="pl-0">
-                    <Link href={`/sub-topics/${params.subTopicId}`}>
+                    <Link href={`/sub-topics/${subTopicId}`}>
                         <ChevronLeft className="mr-2 h-4 w-4" />
                         Back to Sub-Topic
                     </Link>

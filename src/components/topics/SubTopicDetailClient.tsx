@@ -1,5 +1,16 @@
 'use client'
 
+// ----- Milestone helpers -----
+// Each sub-topic always has 18 reps. We want to know how much is *actually* earned
+// after crossing whole ₹1000 blocks. These pure helpers keep the math in one
+// place so the UI and side-effects can stay unchanged.
+const perRepValue = (goal: number) => goal / 18;
+const milestoneEarned = (reps: number, goal: number) => {
+  if (goal <= 0) return 0;
+  const total = perRepValue(goal) * reps;
+  return Math.floor(total / 1000) * 1000; // 0,1000,2000,…
+};
+
 import { useState, useEffect } from 'react';
 import { type Subtopic, type Topic, type DashboardData } from '@/lib/types';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -127,9 +138,8 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
             const updatedSubtopic: Subtopic = result.updatedSubtopic;
             const updatedTopic: Topic = result.updatedTopic;
 
-            const moneyPerRep = updatedSubtopic.repsGoal > 0 ? updatedSubtopic.goalAmount / updatedSubtopic.repsGoal : 0;
-            const oldEarnedAmount = subtopic.repsCompleted * moneyPerRep;
-            const newEarnedAmount = updatedSubtopic.repsCompleted * moneyPerRep;
+            const oldEarnedAmount = milestoneEarned(subtopic.repsCompleted, updatedSubtopic.goalAmount);
+            const newEarnedAmount = milestoneEarned(updatedSubtopic.repsCompleted, updatedSubtopic.goalAmount);
             const moneyDiff = newEarnedAmount - oldEarnedAmount;
 
             // Client-side state synchronization
@@ -179,11 +189,11 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
     };
 
     const handleSubtopicFormSuccess = (updatedSubtopic: Subtopic) => {
-        const oldEarnedAmount = earnedAmount;
+        const oldEarnedAmount = milestoneEarned(subtopic.repsCompleted, updatedSubtopic.goalAmount);
         setSubtopic(updatedSubtopic);
 
         // Recalculate everything after goal amount changes
-        const newEarnedAmount = (updatedSubtopic.repsCompleted / updatedSubtopic.repsGoal) * updatedSubtopic.goalAmount;
+        const newEarnedAmount = milestoneEarned(updatedSubtopic.repsCompleted, updatedSubtopic.goalAmount);
         const moneyDiff = newEarnedAmount - oldEarnedAmount;
 
         setDashboardData(prevData => {
@@ -207,8 +217,9 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
       }
 
     const progressPercentage = subtopic.repsGoal > 0 ? (subtopic.repsCompleted / subtopic.repsGoal) * 100 : 0;
-    const earnedAmount = subtopic.repsGoal > 0 ? (subtopic.repsCompleted / subtopic.repsGoal) * subtopic.goalAmount : 0;
-    const stackLayers = subtopic.goalAmount > 0 ? Math.floor((earnedAmount / subtopic.goalAmount) * 10) : 0;
+    const earnedAmount = milestoneEarned(subtopic.repsCompleted, subtopic.goalAmount);
+    const stackLayers = earnedAmount / 1000;
+    const maxLayers = subtopic.goalAmount / 1000;
 
 
     return (
@@ -337,8 +348,8 @@ export default function SubTopicDetailClient({ initialSubtopic, topic: initialTo
                                 <MoneyStack stackLayers={stackLayers} />
                             </div>
                             <div className="mt-4 text-center">
-                                <div className="text-sm text-gray-600">Stack Layers: {stackLayers}/10</div>
-                                <div className="text-xs text-gray-500 mt-1">Each layer represents 10% of your goal</div>
+                                <div className="text-sm text-gray-600">Stack Layers: {stackLayers}/{maxLayers}</div>
+                                <div className="text-xs text-gray-500 mt-1">Each layer represents ₹1000</div>
                             </div>
                         </div>
                     </div>
