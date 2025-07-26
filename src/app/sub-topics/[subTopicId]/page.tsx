@@ -6,35 +6,41 @@ import { type Subtopic, type Topic } from '@/lib/types';
 import Link from 'next/link';
 
 async function getData(subTopicId: string): Promise<{subtopic: Subtopic, topic: Topic} | null> {
-    const subtopicRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sub-topics/${subTopicId}`, { cache: 'no-store' });
-    if (!subtopicRes.ok) return null;
-    const subtopic: Subtopic = await subtopicRes.json();
+    try {
+        // OPTIMIZATION 1: Fetch subtopic and dashboard data in parallel
+        const [subtopicRes, dashboardRes] = await Promise.all([
+            fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sub-topics/${subTopicId}`, { cache: 'no-store' }),
+            fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/dashboard`, { cache: 'no-store' })
+        ]);
 
-    let topic: Topic | null = null;
-    
-    // OPTIMIZED: Fetch all topics in parallel instead of sequentially
-    const dashboardRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/dashboard`, { cache: 'no-store' });
-    if (dashboardRes.ok) {
-      const dashboard: { topics: { id: string }[] } = await dashboardRes.json();
-      
-      // Fetch all topics in parallel using Promise.all
-      const topicPromises = dashboard.topics.map(topicSummary => 
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/topics/${topicSummary.id}`, { cache: 'no-store' })
-          .then(res => res.ok ? res.json() : null)
-          .catch(() => null)
-      );
-      
-      const allTopics = await Promise.all(topicPromises);
-      
-      // Find the topic that contains this subtopic
-      topic = allTopics.find((fullTopic: Topic | null) => 
-        fullTopic && fullTopic.subtopics.some(st => st.id === subTopicId)
-      ) || null;
+        if (!subtopicRes.ok || !dashboardRes.ok) return null;
+        
+        const [subtopic, dashboard] = await Promise.all([
+            subtopicRes.json(),
+            dashboardRes.json()
+        ]);
+
+        // OPTIMIZATION 2: Fetch all topics in parallel instead of sequentially
+        const topicPromises = dashboard.topics.map((topicSummary: { id: string }) => 
+            fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/topics/${topicSummary.id}`, { cache: 'no-store' })
+                .then(res => res.ok ? res.json() : null)
+                .catch(() => null)
+        );
+        
+        const allTopics = await Promise.all(topicPromises);
+        
+        // OPTIMIZATION 3: Find the topic that contains this subtopic (early exit)
+        const topic = allTopics.find((fullTopic: Topic | null) => 
+            fullTopic && fullTopic.subtopics.some(st => st.id === subTopicId)
+        );
+        
+        if (!topic) return null;
+        
+        return { subtopic, topic };
+    } catch (error) {
+        console.error('Error fetching subtopic data:', error);
+        return null;
     }
-    
-    if (!topic) return null;
-    
-    return { subtopic, topic };
 }
 
 export default async function SubTopicDetailPage({ params }: { params: Promise<{ subTopicId: string }> }) {
