@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Target, TrendingUp, Calendar, Settings } from 'lucide-react';
+import { Target } from 'lucide-react';
 import { Activity, ProgressData } from '@/lib/types';
 import { activityApi } from '@/lib/api';
 import GoalSettingsDialog from './GoalSettingsDialog';
@@ -129,7 +129,7 @@ export default function GoalManagement() {
                     <div className="space-y-1">
                       <div className="flex items-center justify-between text-sm">
                         <span className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3" />
+                          <Target className="h-3 w-3" />
                           Daily Goal
                         </span>
                         <span>{dailyProgress.current} / {dailyProgress.target}</span>
@@ -147,7 +147,7 @@ export default function GoalManagement() {
                     <div className="space-y-1">
                       <div className="flex items-center justify-between text-sm">
                         <span className="flex items-center gap-1">
-                          <TrendingUp className="h-3 w-3" />
+                          <Target className="h-3 w-3" />
                           Weekly Goal
                         </span>
                         <span>{weeklyProgress.current} / {weeklyProgress.target}</span>
@@ -198,15 +198,12 @@ export default function GoalManagement() {
       <Card className="bg-muted/50">
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
-            <Settings className="h-5 w-5 text-muted-foreground mt-0.5" />
+            <Target className="h-5 w-5 text-muted-foreground mt-0.5" />
             <div className="space-y-1">
               <h3 className="font-semibold">Goal Setting</h3>
               <p className="text-sm text-muted-foreground">
                 Click "Set Goals" on any activity card to customize your daily, weekly, monthly, and yearly targets. 
                 Goals help you stay motivated and track your long-term progress.
-              </p>
-              <p className="text-xs text-muted-foreground mt-2">
-                <strong>Note:</strong> Goal updates require backend API support and are currently simulated in the UI.
               </p>
             </div>
           </div>

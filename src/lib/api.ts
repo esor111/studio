@@ -61,6 +61,37 @@ export const activityApi = {
   getById: (id: string): Promise<Activity> =>
     fetchApi<Activity>(`/activities/${id}`),
 
+  // Create new activity
+  create: (activityData: {
+    name: string;
+    goals: {
+      daily: number;
+      weekly: number;
+      monthly: number;
+      yearly: number;
+    };
+  }): Promise<Activity> =>
+    fetchApi<Activity>("/activities", {
+      method: "POST",
+      body: JSON.stringify(activityData),
+    }),
+
+  // Update activity
+  update: (id: string, updates: {
+    name?: string;
+    reps?: number;
+    goals?: {
+      daily: number;
+      weekly: number;
+      monthly: number;
+      yearly: number;
+    };
+  }): Promise<Activity> =>
+    fetchApi<Activity>(`/activities/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(updates),
+    }),
+
   // Increment reps
   increment: (id: string, amount: number = 1): Promise<Activity> =>
     fetchApi<Activity>(`/activities/${id}/increment`, {
