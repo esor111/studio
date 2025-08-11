@@ -1,4 +1,4 @@
-import { Target, Activity, Settings } from 'lucide-react';
+import { Target, Activity, Settings, Timer } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from './ui/button';
 
@@ -22,6 +22,12 @@ export default function Header() {
             <Button variant="ghost" size="sm">
               <Activity className="h-4 w-4 mr-2" />
               Activities
+            </Button>
+          </Link>
+          <Link href="/challenge">
+            <Button variant="ghost" size="sm">
+              <Timer className="h-4 w-4 mr-2" />
+              64-Day Challenge
             </Button>
           </Link>
           <Link href="/activities/goals">
