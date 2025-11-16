@@ -2,12 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
+
 body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
 @layer base {
   :root {
+    /* Battle System Variables */
+    --bg-primary: #0a0a0a;
+    --bg-secondary: #0f1419;
+    --bg-card: #1a1a1a;
+    --gold: #FFD700;
+    --electric-blue: #00D4FF;
+    --crimson: #DC143C;
+    --neon-green: #39FF14;
+    --gradient-gold: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    --gradient-blue: linear-gradient(135deg, #00D4FF 0%, #8A2BE2 100%);
+    --gradient-red: linear-gradient(135deg, #DC143C 0%, #8B0000 100%);
+    
+    /* Existing shadcn variables */
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
@@ -84,5 +99,148 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  /* Battle System Utility Classes */
+  
+  /* Premium Interaction Effects */
+  .hover-lift {
+    @apply transition-transform duration-200 ease-out;
+  }
+  .hover-lift:hover {
+    @apply -translate-y-1;
+  }
+  
+  .press-scale {
+    @apply transition-transform duration-100 ease-out;
+  }
+  .press-scale:active {
+    @apply scale-95;
+  }
+  
+  .hover-glow {
+    @apply transition-all duration-300 ease-out;
+  }
+  
+  .hover-scale {
+    @apply transition-transform duration-200 ease-out;
+  }
+  .hover-scale:hover {
+    @apply scale-105;
+  }
+  
+  /* Glow Effects */
+  .glow-gold {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+  }
+  
+  .glow-blue {
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+  }
+  
+  .glow-red {
+    box-shadow: 0 0 20px rgba(220, 20, 60, 0.5);
+  }
+  
+  .glow-green {
+    box-shadow: 0 0 20px rgba(57, 255, 20, 0.5);
+  }
+  
+  /* Hover Glow Variants */
+  .hover-glow-gold:hover {
+    @apply glow-gold;
+  }
+  
+  .hover-glow-blue:hover {
+    @apply glow-blue;
+  }
+  
+  .hover-glow-red:hover {
+    @apply glow-red;
+  }
+  
+  .hover-glow-green:hover {
+    @apply glow-green;
+  }
+  
+  /* Typography Classes */
+  .text-battle-xl {
+    @apply text-6xl font-black leading-tight;
+  }
+  
+  .text-battle-lg {
+    @apply text-5xl font-extrabold leading-tight;
+  }
+  
+  .text-battle-md {
+    @apply text-3xl font-bold leading-tight;
+  }
+  
+  .text-balance {
+    @apply text-7xl font-black tracking-tighter;
+  }
+  
+  .text-amount {
+    @apply text-6xl font-extrabold tracking-tight;
+  }
+  
+  .text-quote {
+    @apply font-quote text-xl italic leading-relaxed;
+  }
+  
+  /* Background Utilities */
+  .bg-battle-primary {
+    background-color: var(--bg-primary);
+  }
+  
+  .bg-battle-secondary {
+    background-color: var(--bg-secondary);
+  }
+  
+  .bg-battle-card {
+    background-color: var(--bg-card);
+  }
+  
+  /* Glass Morphism Effect */
+  .glass-morphism {
+    @apply backdrop-blur-md bg-white/10 border border-white/20;
+  }
+  
+  .glass-morphism-dark {
+    @apply backdrop-blur-md bg-black/20 border border-white/10;
+  }
+  
+  /* Premium Button Base */
+  .btn-premium {
+    @apply relative overflow-hidden rounded-lg font-bold transition-all duration-200 ease-out;
+    @apply hover-lift press-scale;
+  }
+  
+  /* Gradient Backgrounds */
+  .bg-gradient-gold {
+    background: var(--gradient-gold);
+  }
+  
+  .bg-gradient-blue {
+    background: var(--gradient-blue);
+  }
+  
+  .bg-gradient-red {
+    background: var(--gradient-red);
+  }
+  
+  /* Animation Utilities */
+  .animate-pulse-glow {
+    @apply animate-pulse-glow;
+  }
+  
+  .animate-float {
+    @apply animate-float;
+  }
+  
+  .animate-scale-in {
+    @apply animate-scale-in;
   }
 }

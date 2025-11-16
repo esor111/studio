@@ -34,6 +34,10 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
+        source: '/api/battle/:path*',
+        destination: 'http://localhost:3000/api/:path*', // Battle system backend
+      },
+      {
         source: '/api/:path*',
         destination: 'https://dev.kaha.com.np/exp-backend/api/:path*', // Proxy to DEPLOYED server
       },
@@ -46,6 +50,9 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_ACTIVITY_API_URL: process.env.NODE_ENV === 'development'
       ? 'https://dev.kaha.com.np/exp-backend/api' // Activity backend API
       : 'https://dev.kaha.com.np/exp-backend/api', // Production activity API URL
+    NEXT_PUBLIC_BATTLE_API_URL: process.env.NODE_ENV === 'development'
+      ? 'http://localhost:3000/api' // Battle system backend
+      : 'http://localhost:3000/api', // Production battle API URL
   },
 };
 
