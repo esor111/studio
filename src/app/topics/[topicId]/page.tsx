@@ -7,15 +7,21 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 
 async function getTopicData(topicId: string): Promise<Topic | null> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/topics/${topicId}`, { cache: 'no-store' });
-  if (!res.ok) {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/topics/${topicId}`, { cache: 'no-store' });
+    if (!res.ok) {
+      return null;
+    }
+    return res.json();
+  } catch (error) {
+    console.error('Error fetching topic data:', error);
     return null;
   }
-  return res.json();
 }
 
-export default async function TopicDetailPage({ params }: { params: { topicId: string } }) {
-  const topicData = await getTopicData(params.topicId);
+export default async function TopicDetailPage({ params }: { params: Promise<{ topicId: string }> }) {
+  const { topicId } = await params;
+  const topicData = await getTopicData(topicId);
 
   if (!topicData) {
     return (

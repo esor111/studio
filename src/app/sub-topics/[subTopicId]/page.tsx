@@ -6,34 +6,45 @@ import { type Subtopic, type Topic } from '@/lib/types';
 import Link from 'next/link';
 
 async function getData(subTopicId: string): Promise<{subtopic: Subtopic, topic: Topic} | null> {
-    const subtopicRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sub-topics/${subTopicId}`, { cache: 'no-store' });
-    if (!subtopicRes.ok) return null;
-    const subtopic: Subtopic = await subtopicRes.json();
+    try {
+        // OPTIMIZATION 1: Fetch subtopic and dashboard data in parallel
+        const [subtopicRes, dashboardRes] = await Promise.all([
+            fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/sub-topics/${subTopicId}`, { cache: 'no-store' }),
+            fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/dashboard`, { cache: 'no-store' })
+        ]);
 
-    let topic: Topic | null = null;
-    // We need to find the parent topic. This is a bit inefficient without a dedicated endpoint.
-    // In a real app, you might have /api/sub-topics/[id]/details which returns both.
-    const dashboardRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/dashboard`, { cache: 'no-store' });
-    if (dashboardRes.ok) {
-      const dashboard: { topics: { id: string }[] } = await dashboardRes.json();
-      for (const topicSummary of dashboard.topics) {
-          const topicRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/topics/${topicSummary.id}`, { cache: 'no-store' });
-          if (topicRes.ok) {
-              const fullTopic: Topic = await topicRes.json();
-              if (fullTopic.subtopics.some(st => st.id === subTopicId)) {
-                  topic = fullTopic;
-                  break;
-              }
-          }
-      }
+        if (!subtopicRes.ok || !dashboardRes.ok) return null;
+        
+        const [subtopic, dashboard] = await Promise.all([
+            subtopicRes.json(),
+            dashboardRes.json()
+        ]);
+
+        // OPTIMIZATION 2: Fetch all topics in parallel instead of sequentially
+        const topicPromises = dashboard.topics.map((topicSummary: { id: string }) => 
+            fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/topics/${topicSummary.id}`, { cache: 'no-store' })
+                .then(res => res.ok ? res.json() : null)
+                .catch(() => null)
+        );
+        
+        const allTopics = await Promise.all(topicPromises);
+        
+        // OPTIMIZATION 3: Find the topic that contains this subtopic (early exit)
+        const topic = allTopics.find((fullTopic: Topic | null) => 
+            fullTopic && fullTopic.subtopics.some(st => st.id === subTopicId)
+        );
+        
+        if (!topic) return null;
+        
+        return { subtopic, topic };
+    } catch (error) {
+        console.error('Error fetching subtopic data:', error);
+        return null;
     }
-    
-    if (!topic) return null;
-    
-    return { subtopic, topic };
 }
 
-export default async function SubTopicDetailPage({ params: { subTopicId } }: { params: { subTopicId: string } }) {
+export default async function SubTopicDetailPage({ params }: { params: Promise<{ subTopicId: string }> }) {
+  const { subTopicId } = await params;
   const data = await getData(subTopicId);
 
   if (!data) {
@@ -56,7 +67,7 @@ export default async function SubTopicDetailPage({ params: { subTopicId } }: { p
   );
 }
 
-export function SubTopicDetailSkeleton() {
+function SubTopicDetailSkeleton() {
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-8">
       <div className="max-w-6xl mx-auto">
